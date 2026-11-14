@@ -1,0 +1,54 @@
+/* The single source of color: change the palette here to recolor every component. */
+:root {
+  --color-background: #faf9f6;
+  --color-surface: #ffffff;
+  --color-surface-secondary: #f0eeea;
+  --color-text: #262326;
+  --color-text-secondary: #77716f;
+  --color-primary: #643349;
+  --color-accent: #ad7d8e;
+  --color-accent-soft: #eee3e7;
+  --color-border: #e4e0dc;
+  --color-button-background: #643349;
+  --color-button-text: #ffffff;
+  --color-on-primary-muted: #cdb4bf;
+  --color-primary-line: #83576a;
+  --color-device: #d0c9c7;
+  --color-device-edge: #f8f5f3;
+  --color-screen: #f8f5f3;
+  --color-screen-text: #918586;
+  --color-screen-line: #e7dfdf;
+  --color-shadow: #3723301a;
+  --color-media-rose: #e9dfe1;
+  --color-media-sand: #e8e5de;
+  --color-media-clay: #e5dcda;
+  --color-media-gray: #e2e1e6;
+  --color-media-plum: #e4d9e0;
+  --font-latin: "Inter", sans-serif;
+  --font-rtl: "Vazirmatn", sans-serif;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-background: #1e1b1e;
+  --color-surface: #282428;
+  --color-surface-secondary: #302a2e;
+  --color-text: #f1ece8;
+  --color-text-secondary: #b6abae;
+  --color-primary: #d5a4b8;
+  --color-accent: #ba8ba0;
+  --color-accent-soft: #3d2c35;
+  --color-border: #41373c;
+  --color-button-background: #d5a4b8;
+  --color-button-text: #291b22;
+  --color-device: #75696e;
+  --color-device-edge: #a89a9e;
+  --color-screen: #3e353b;
+  --color-screen-text: #b7a7ae;
+  --color-screen-line: #50434b;
+  --color-shadow: #00000033;
+  --color-media-rose: #4b3841;
+  --color-media-sand: #44403a;
+  --color-media-clay: #493b39;
+  --color-media-gray: #3a3945;
+  --color-media-plum: #443341;
+}

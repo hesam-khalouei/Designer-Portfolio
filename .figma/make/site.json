@@ -1,0 +1,10 @@
+{
+  "description": "Explore senior product designer Amir Hesam Khalouei’s work, experience, and services in English, Persian, or Arabic, and connect for product design collaborations.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
