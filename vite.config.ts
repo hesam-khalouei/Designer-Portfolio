@@ -87,6 +87,23 @@ function figmaSiteConfiguration(config: FigmaSiteConfiguration): Plugin {
   function replaceHtmlCommentSlot(html: string, slotName: string, content: string): string {
     return html.replace(`<!-- ${slotName} -->`, content)
   }
+  function hasHtmlTag(
+    html: string,
+    tagName: string,
+    attribute: string,
+    value: string,
+  ): boolean {
+    const tags = html.match(new RegExp(`<${tagName}\\b[^>]*>`, 'gi')) ?? []
+    const attributePattern = new RegExp(
+      `\\b${attribute}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`,
+      'i',
+    )
+
+    return tags.some((tag) => {
+      const match = tag.match(attributePattern)
+      return (match?.[1] ?? match?.[2]) === value
+    })
+  }
 
   const title = config.title ?? "Figma Make App"
   const description = config.description ?? ''
@@ -133,29 +150,35 @@ function figmaSiteConfiguration(config: FigmaSiteConfiguration): Plugin {
         result = replaceHtmlCommentSlot(result, 'figma:body-end', bodyEnd)
 
         const tags: HtmlTagDescriptor[] = []
-        if (description) {
+        if (description && !hasHtmlTag(result, 'meta', 'name', 'description')) {
           tags.push({ tag: 'meta', attrs: { name: 'description', content: description }, injectTo: 'head' })
         }
-        if (config.robots?.index === false) {
+        if (
+          config.robots?.index === false &&
+          !hasHtmlTag(result, 'meta', 'name', 'robots')
+        ) {
           tags.push({ tag: 'meta', attrs: { name: 'robots', content: 'noindex, nofollow' }, injectTo: 'head' })
         }
-        if (favicon) {
+        if (favicon && !hasHtmlTag(result, 'link', 'rel', 'icon')) {
           tags.push({ tag: 'link', attrs: { rel: 'icon', href: favicon }, injectTo: 'head' })
         }
-        if (title) {
+        if (title && !hasHtmlTag(result, 'meta', 'property', 'og:title')) {
           tags.push({ tag: 'meta', attrs: { property: 'og:title', content: title }, injectTo: 'head' })
         }
-        if (description) {
+        if (description && !hasHtmlTag(result, 'meta', 'property', 'og:description')) {
           tags.push({ tag: 'meta', attrs: { property: 'og:description', content: description }, injectTo: 'head' })
         }
         if (socialImage) {
-          tags.push(
-            { tag: 'meta', attrs: { property: 'og:image', content: socialImage }, injectTo: 'head' },
-            { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' }, injectTo: 'head' },
-            { tag: 'meta', attrs: { name: 'twitter:image', content: socialImage }, injectTo: 'head' },
-          )
+          if (!hasHtmlTag(result, 'meta', 'property', 'og:image')) {
+            tags.push({ tag: 'meta', attrs: { property: 'og:image', content: socialImage }, injectTo: 'head' })
+          }
+          if (!hasHtmlTag(result, 'meta', 'name', 'twitter:card')) {
+            tags.push({ tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' }, injectTo: 'head' })
+          }
+          if (!hasHtmlTag(result, 'meta', 'name', 'twitter:image')) {
+            tags.push({ tag: 'meta', attrs: { name: 'twitter:image', content: socialImage }, injectTo: 'head' })
+          }
         }
-
         if (googleAnalyticsId) {
           tags.push(
             {
