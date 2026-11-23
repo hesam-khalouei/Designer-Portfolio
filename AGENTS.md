@@ -1,5 +1,15 @@
 # figma-make-app
 
+## Mandatory Documentation Governance
+
+Before every task, including small fixes and documentation-only changes, follow:
+
+`docs/operations/documentation-governance.md`
+
+Read the relevant project documentation before investigating or changing implementation details. Update affected documentation, verify the changes, and produce a concise task report. If no documentation update is warranted, record why.
+
+This policy is mandatory and does not replace the instructions below.
+
 React + Vite + Tailwind CSS project running inside Figma Make.
 
 ## Development Server

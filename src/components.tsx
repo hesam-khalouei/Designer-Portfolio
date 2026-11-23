@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import { text, type Lang, type Project, type DeviceType, type Text } from "./content";
+import { text } from "./domain/localization/LocalizedText";
+import type { Lang, Text } from "./domain/localization/LocalizedText";
+import type { Project, DeviceType } from "./domain/content/entities/PortfolioContent";
 import { ui } from "./locales";
 
 export function Icon({

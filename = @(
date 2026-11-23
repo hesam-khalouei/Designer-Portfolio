@@ -1,0 +1,18 @@
+warning: in the working copy of 'AGENTS.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/verify-portfolio.mjs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/App.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/index.css', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/locales.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/main.tsx', LF will be replaced by CRLF the next time Git touches it
+ .figma/make/site.json        |   2 [32m+[m[31m-[m
+ .gitattributes               |   1 [31m-[m
+ AGENTS.md                    |  10 [32m+[m
+ scripts/verify-portfolio.mjs |  48 [32m+++[m
+ src/App.tsx                  | 743 [32m+++++[m[31m--------------------------------------[m
+ src/components.tsx           |   7 [32m+[m[31m-[m
+ src/index.css                |  40 [32m+++[m
+ src/locales.ts               |  16 [32m+[m[31m-[m
+ src/main.tsx                 |  13 [32m+[m[31m-[m
+ src/theme.css                |   6 [32m+[m[31m-[m
+ 10 files changed, 207 insertions(+), 679 deletions(-)

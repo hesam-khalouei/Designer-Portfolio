@@ -1,4 +1,4 @@
-import type { Text } from "./content";
+import type { Text } from "./domain/localization/LocalizedText";
 export const ui = {
   freelance: ["Freelance", "فریلنس", "العمل الحر"],
   navWork: ["Selected Work", "پروژه‌ها", "أعمال مختارة"],
@@ -151,6 +151,16 @@ export const ui = {
   results: ["Results & impact", "نتایج و تأثیر", "النتائج والأثر"],
   website: ["Personal website", "وب‌سایت شخصی", "الموقع الشخصي"],
   skip: ["Skip to content", "رفتن به محتوا", "انتقل إلى المحتوى"],
+  adminTitle: ["Admin Panel", "پنل مدیریت", "لوحة الإدارة"],
+  adminDescription: [
+    "The administration area is reserved for future implementation. Authentication and management features are not available yet.",
+    "این بخش برای پیاده‌سازی آینده پنل مدیریت در نظر گرفته شده است. احراز هویت و امکانات مدیریتی هنوز فعال نیستند.",
+    "هذه المساحة مخصصة للتنفيذ المستقبلي للوحة الإدارة. المصادقة وميزات الإدارة غير متاحة بعد.",
+  ],
+  adminBack: ["Back to portfolio", "بازگشت به پورتفولیو", "العودة إلى ملف الأعمال"],
+  portfolioLoading: ["Loading portfolio...", "در حال بارگذاری پورتفولیو...", "جارٍ تحميل ملف الأعمال."],
+  portfolioLoadError: ["Unable to load portfolio content.", "بارگذاری محتوای پورتفولیو ناموفق بود.", "تعذر تحميل محتوى ملف الأعمال."],
+  retry: ["Try again", "تلاش مجدد", "إعادة المحاولة"],
 } satisfies Record<string, Text>;
 export type UIKey = keyof typeof ui;
 export const caseSections: UIKey[] = [

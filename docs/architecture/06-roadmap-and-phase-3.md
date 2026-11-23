@@ -1,0 +1,205 @@
+﻿# Roadmap and Phase 3 Execution Plan
+
+## 1. Roadmap مصوب
+
+  -----------------------------------------------------------------------
+  فاز                     عنوان                   خروجی اصلی
+  ----------------------- ----------------------- -----------------------
+  Phase 3                 Project Foundation      ساختار Frontend و
+                                                  مرزهای معماری
+
+  Phase 4                 Backend Foundation      Supabase، Schema، Auth،
+                                                  RLS، Repository Adapter
+
+  Phase 5                 Core CMS                مدیریت محتوای اصلی
+
+  Phase 6                 Localization            ترجمه مستقل و مدیریت
+                                                  Locale
+
+  Phase 7                 Page Builder            Block Registry و Visual
+                                                  Builder
+
+  Phase 8                 Design System Manager   Palette، Tokens،
+                                                  Typography و Fonts
+
+  Phase 9                 Media Library & SEO     رسانه، Variantها و SEO
+
+  Phase 10                Publishing & Preview    Draft، Preview،
+                                                  Publish، History و
+                                                  Rollback
+
+  Phase 11                Production & Deployment Hardening، مانیتورینگ و
+                                                  انتشار Production
+  -----------------------------------------------------------------------
+
+ترتیب بالا نقشه راه مفهومی است. بعضی قابلیت‌های پایه Publishing و Media
+برای گردش‌کار Draft ممکن است زودتر و به‌شکل حداقلی لازم شوند؛ این
+وابستگی‌ها در طراحی اجرایی ثبت می‌شوند.
+
+## 2. Phase 3 --- Project Foundation
+
+هدف: آماده‌سازی Frontend برای مهاجرت تدریجی به CMS، بدون راه‌اندازی
+Backend در این فاز.
+
+### 3.1 Pre-Implementation Audit
+
+**وضعیت:** تکمیل‌شده، Read-only
+
+خروجی: ممیزی وضعیت موجود، شناسایی ریسک‌ها و پیشنهاد ساختار مقصد.
+
+### 3.2 Project Structure
+
+**وضعیت:** تقسیم‌بندی کلی تأییدشده؛ جزئیات و اجرا باز
+
+کارها: - تعریف مرز `app`, `domain`, `application`, `infrastructure`,
+`admin`, `public-site`, `shared`. - تعیین قواعد Import و Dependency
+Direction. - جلوگیری از Circular Dependency. - مشخص‌کردن مالکیت Typeها و
+قراردادها. - تعیین اینکه کدام فایل‌های موجود در هر مرحله منتقل یا به‌تدریج
+Refactor می‌شوند.
+
+### 3.3 TypeScript Foundation
+
+-   تعریف Branded/Domain Types در صورت نیاز واقعی.
+-   تعریف Locale، IDs، Result و AppError.
+-   تعریف قراردادهای اولیه Entity و Repository.
+-   فعال نگه‌داشتن Strict TypeScript.
+-   عدم ایجاد Abstractionهای بدون مصرف واقعی.
+
+### 3.4 Application Shell
+
+-   ایجاد پوسته مشترک برنامه.
+-   جداسازی Public و Admin.
+-   حفظ Theme، Locale، Direction و Global Providers.
+-   جلوگیری از تغییر ناخواسته رفتار سایت عمومی.
+
+### 3.5 Routing
+
+-   تفکیک مسیرهای Public و Admin.
+-   حفظ Hash Routing در ابتدا مگر اینکه نیاز فنی مشخصی برای تغییر وجود
+    داشته باشد.
+-   Unknown Route باید رفتار مشخص داشته باشد.
+-   Route Guard فقط برای UX است؛ مجوزدهی واقعی در Backend انجام می‌شود.
+
+**Execution status:**
+
+-   Phase 3.5.1 — Routing Baseline Audit: Completed.
+-   Phase 3.5.2 — Hash Router Adapter: Completed.
+-   Phase 3.5.3 — Public/Admin Separation: Completed.
+-   Phase 3.5.4 — Root Error Boundary: Implemented; TypeScript, production build, and UI regression passed. Direct crash-path test not run.
+-   Phase 3.5.5 — Routing Regression Tests: Completed; anchor navigation, browser Back/Forward, Admin/Public separation, and invalid/unknown route fallback coverage verified through the UI regression suite.
+
+### 3.6 Repository Foundation
+
+-   تعریف Repository Interfaces / Contracts در `src/application/repositories`.
+-   استفاده Application Services و Use Cases از این قراردادها، بدون وابستگی مستقیم به دیتابیس.
+-   پیاده‌سازی Adapter موقت Local/Static در `src/infrastructure` برای حفظ رفتار سایت فعلی.
+-   پیاده‌سازی Supabase Adapter در لایه Infrastructure طی Phase 4.
+-   Domain و Application نباید به Supabase SDK یا جزئیات Persistence وابسته باشند.
+-   UI نباید مستقیماً از Supabase Query یا پیاده‌سازی‌های Infrastructure استفاده کند.
+
+**Execution status: Completed — 2026-11-23**
+
+- Repository Contract در `src/application/repositories/PortfolioRepository.ts` تعریف شد.
+- Aggregate محتوای Portfolio و Entityهای مرتبط در Domain تعریف شدند.
+- Localization Types از فایل محتوای ثابت جدا شدند.
+- Static Adapter در Infrastructure ایجاد شد؛ داده‌های اصلی فعلاً در `src/content.ts` باقی مانده‌اند.
+- Use Case دریافت Portfolio Content و Composition Root ایجاد شدند.
+- وابستگی‌ها در Entry Point ساخته و به Application تزریق شدند.
+- Public UI از دریافت مستقیم محتوای ثابت جدا شد و Loading، Error و Retry اضافه شدند.
+- مسیر Admin مستقل باقی ماند و Repository را مصرف نمی‌کند.
+- TypeScript، Production Build و UI Regression با موفقیت اجرا شدند.
+- تست اختصاصی شکست Repository و Retry اجرا نشد.
+### 3.7 UI Foundation
+
+-   پایه کامپوننت‌های مشترک.
+-   Design Tokens اولیه برای Admin، جدا از Public Site در صورت نیاز.
+-   دسترس‌پذیری، RTL، Responsive و Dark Mode.
+-   عدم ساخت کامل Design System Manager در این مرحله.
+
+### 3.8 Verification
+
+-   TypeScript Check.
+-   Build.
+-   اجرای اسکریپت Verification موجود.
+-   تست Routeها.
+-   تست زبان‌ها و RTL.
+-   تست Theme.
+-   مقایسه بصری صفحات کلیدی.
+-   بررسی Console و Network.
+-   بررسی Base Path و خروجی GitHub Pages در مرحله مناسب.
+
+## 3. ترتیب وابستگی‌ها
+
+پیشنهاد ترتیب: 1. 3.2 ساختار و قواعد وابستگی. 2. 3.3 TypeScript و
+قراردادهای پایه. 3. 3.4 Application Shell. 4. 3.5 Routing. 5. 3.6 Repository Contracts در Application و Adapter موقت در Infrastructure. 6. 3.7 UI Foundation. 7. 3.8
+Verification.
+
+در صورت آشکارشدن وابستگی جدید، ترتیب می‌تواند با ثبت دلیل اصلاح شود.
+
+## 4. Definition of Done برای Phase 3
+
+-   سایت فعلی قابل اجرا باقی بماند.
+-   ظاهر و رفتار اصلی Public بدون Regression جدی حفظ شود.
+-   Public و Admin مرز مشخص داشته باشند.
+-   Domain و Application به Supabase وابسته نباشند.
+-   Repository Contracts تعریف و قابل تست باشند.
+-   TypeScript Strict برقرار باشد.
+-   Locale و RTL/LTR حفظ شوند.
+-   Theme فعلی حفظ شود.
+-   هیچ Secret در Frontend وجود نداشته باشد.
+-   تست‌های پایه موفق باشند.
+-   مستندات ساختار، قراردادها و روش اجرای پروژه به‌روز باشند.
+
+## 5. روش اجرای هر گام
+
+برای هر گام: 1. ابتدا هدف و Scope مشخص شود. 2. فایل‌های درگیر و اثرات
+احتمالی شناسایی شوند. 3. طرح تغییر ارائه و تأیید شود، مگر اینکه کاربر
+قبلاً اختیار اجرای همان تغییر محدود را داده باشد. 4. تغییرات کوچک و قابل
+بازبینی باشند. 5. تست‌های مرتبط اجرا شوند. 6. خروجی واقعی تست گزارش شود.
+7. مستندات همان گام به‌روزرسانی شوند. 8. Git Diff و وضعیت فایل‌ها بررسی
+شوند. 9. هیچ Commit/Push بدون درخواست یا تأیید صریح انجام نشود.
+
+## 6. استاندارد دستورهای PowerShell
+
+-   مسیر پروژه همیشه
+    `C:\\Users\\a.khalouei\\Desktop\\Designer-Portfolio` است.
+-   دستورها با PowerShell سازگار باشند.
+-   از فرض نصب بودن `pnpm` در PATH خودداری شود؛ ابتدا وضعیت ابزار بررسی
+    شود.
+-   تا زمان رفع مسئله ابزار، اجرای باینری محلی مانند
+    `node_modules\\.bin\\tsc.cmd` قابل استفاده است.
+-   از دستورهای مخرب یا حذف فایل بدون تأیید صریح استفاده نشود.
+-   در مرحله Read-only فقط دستورات خواندن/بررسی ارائه شوند.
+
+## 7. مستندسازی تغییرات بعدی
+
+هر قابلیت یا تغییر مهم باید در Markdown مربوط ثبت شود. در صورت نیاز: -
+`docs/decisions/ADR-NNN-*.md` - `docs/architecture/*.md` -
+`docs/runbooks/*.md` - `docs/testing/*.md`
+
+برای هر مرحله گزارش کوتاه شامل Scope، فایل‌های تغییرکرده، تصمیم‌ها، تست‌ها،
+نتیجه و کارهای باز ارائه شود.
+
+## 8. Relationship between the two phase models
+
+`GEMINI.md` describes a high-level product lifecycle using PHASE 0 through
+PHASE 7, from audit and architecture through implementation, testing and
+deployment.
+
+This lifecycle is not a replacement for, or a numeric mapping to, the
+project execution Roadmap defined in this document.
+
+The Phase 3–11 Roadmap and its 3.x subphases remain the canonical plan for
+execution order, task scope, dependencies, acceptance criteria and status.
+
+The two models serve different purposes:
+
+- The Constitution lifecycle describes broad product-development concerns.
+- This Roadmap describes the approved project execution sequence.
+
+Do not infer a one-to-one correspondence between phase numbers. When a
+specific task is planned, identify its applicable Roadmap phase and record
+any relevant Constitution requirement in that task's scope and acceptance
+criteria.
+
+

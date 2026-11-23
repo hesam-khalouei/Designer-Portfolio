@@ -1,0 +1,77 @@
+warning: in the working copy of 'src/App.tsx', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/src/App.tsx b/src/App.tsx[m
+[1mindex 7f60405..497b72c 100644[m
+[1m--- a/src/App.tsx[m
+[1m+++ b/src/App.tsx[m
+[36m@@ -1,4 +1,6 @@[m
+ import { useEffect, useState } from "react";[m
+[32m+[m[32mimport { useLanguage } from "./app/providers/LanguageProvider";[m
+[32m+[m[32mimport { useTheme } from "./app/providers/ThemeProvider";[m
+ import {[m
+   capabilities,[m
+   certifications,[m
+[36m@@ -23,20 +25,7 @@[m [mimport {[m
+   useReveals,[m
+ } from "./components";[m
+ [m
+[31m-const saved = (key: string, fallback: string) => {[m
+[31m-  try {[m
+[31m-    return localStorage.getItem(key) || fallback;[m
+[31m-  } catch {[m
+[31m-    return fallback;[m
+[31m-  }[m
+[31m-};[m
+[31m-const persist = (key: string, value: string) => {[m
+[31m-  try {[m
+[31m-    localStorage.setItem(key, value);[m
+[31m-  } catch {[m
+[31m-    /* Preferences remain usable when storage is disabled. */[m
+[31m-  }[m
+[31m-};[m
+[32m+[m
+ const nav: [string, UIKey][] = [[m
+   ["work", "navWork"],[m
+   ["experience", "navExperience"],[m
+[36m@@ -45,13 +34,8 @@[m [mconst nav: [string, UIKey][] = [[m
+ ];[m
+ [m
+ export default function App() {[m
+[31m-  const [lang, setLang] = useState<Lang>(() => {[m
+[31m-    const l = saved("ahk-language", "en");[m
+[31m-    return l === "fa" || l === "ar" ? l : "en";[m
+[31m-  });[m
+[31m-  const [theme, setTheme] = useState(() =>[m
+[31m-    saved("ahk-theme", "light") === "dark" ? "dark" : "light",[m
+[31m-  );[m
+[32m+[m[32m  const { lang, setLang } = useLanguage();[m
+[32m+[m[32m  const { theme, setTheme } = useTheme();[m
+   const [menu, setMenu] = useState(false);[m
+   const [route, setRoute] = useState(window.location.hash);[m
+   const [more, setMore] = useState(false);[m
+[36m@@ -90,9 +74,6 @@[m [mexport default function App() {[m
+     return () => window.removeEventListener("keydown", closeOnEscape);[m
+   }, [menu]);[m
+   useEffect(() => {[m
+[31m-    document.documentElement.lang = lang;[m
+[31m-    document.documentElement.dir = lang === "en" ? "ltr" : "rtl";[m
+[31m-    persist("ahk-language", lang);[m
+     document.title = `${project ? `${project.name} — ` : ""}${text(profile.name, lang)} — ${text(profile.title, lang)}`;[m
+     const description = text(summary, lang);[m
+     const updateMeta = (attr: string, key: string, content: string) => {[m
+[36m@@ -120,15 +101,7 @@[m [mexport default function App() {[m
+       lang === "en" ? "en_US" : lang === "fa" ? "fa_IR" : "ar_SA",[m
+     );[m
+   }, [lang, project]);[m
+[31m-  useEffect(() => {[m
+[31m-    document.documentElement.dataset.theme = theme;[m
+[31m-    persist("ahk-theme", theme);[m
+[31m-    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');[m
+[31m-    if (meta)[m
+[31m-      meta.content = getComputedStyle(document.documentElement)[m
+[31m-        .getPropertyValue("--color-background")[m
+[31m-        .trim();[m
+[31m-  }, [theme]);[m
+[32m+[m
+   const language = <LanguageControl lang={lang} onChange={setLang} />;[m
+   const socials = Object.entries(profile.socials).filter(([, url]) => /^https?:\/\//.test(url));[m
+ [m

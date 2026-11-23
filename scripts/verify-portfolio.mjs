@@ -81,7 +81,34 @@ try {
       await checkLayout(`Case study ${url} ${lang}`);
     }
   }
+  for (const [lang, title, direction] of [
+    ["en", "Admin Panel", "ltr"],
+    ["fa", "\u067E\u0646\u0644 \u0645\u062F\u06CC\u0631\u06CC\u062A", "rtl"],
+    ["ar", "\u0644\u0648\u062D\u0629 \u0627\u0644\u0625\u062F\u0627\u0631\u0629", "rtl"],
+  ]) {
+    await page.evaluate(([lang]) => localStorage.setItem("ahk-language", lang), [lang]);
+    await page.evaluate(() => localStorage.setItem("ahk-theme", "dark"));
+    await page.reload({ waitUntil: "networkidle" });
+    await page.goto(`${base}/#/admin`, { waitUntil: "networkidle" });
+    assert.equal((await page.locator("#admin-title").textContent()).trim(), title);
+    assert.equal(await page.locator("html").getAttribute("lang"), lang);
+    assert.equal(await page.locator("html").getAttribute("dir"), direction);
+    assert.equal(await page.locator("html").getAttribute("data-theme"), "dark");
+    assert.equal(await page.locator(".hero-intro").count(), 0);
+    assert.equal(await page.locator("header").count(), 0);
+    assert.equal(await page.locator('a[href="#/"]').count(), 1);
+  }
+  await page.locator('a[href="#/"]').click();
+  await page.waitForSelector(".hero-intro");
+  assert.equal(await page.locator("html").getAttribute("lang"), "ar");
+  assert.equal(await page.locator("html").getAttribute("data-theme"), "dark");
+  await page.goto(`${base}/#/work/invalid-id`, { waitUntil: "networkidle" });
+  await page.waitForSelector(".hero-intro");
+  await page.goto(`${base}/#/unknown`, { waitUntil: "networkidle" });
+  await page.waitForSelector(".hero-intro");
+  console.log("PASS Admin route isolation, en/fa/ar localization, preference persistence, public return, and fallback routes");
   await language("en");
+  await page.getByRole("button", { name: "Switch to light theme", exact: true }).click();
   await page.goto(`${base}/#/work/postex`);
   await page.waitForSelector(".case-contributions");
   await page.locator(".skip-link").focus();
@@ -93,6 +120,27 @@ try {
   );
   assert.ok((await page.locator(".case-contributions").innerText()).includes("approximately 20%"));
   await page.getByRole("link", { name: "Back to selected work", exact: true }).click();
+  await page.waitForSelector(".hero-intro");
+  await page.waitForFunction(() => location.hash === "#work");
+  await page.waitForFunction(() => {
+    const section = document.getElementById("work");
+    if (!section) return false;
+    const bounds = section.getBoundingClientRect();
+    return scrollY > 0 && bounds.top < innerHeight && bounds.bottom > 0;
+  });
+  assert.equal(await page.locator("#work").count(), 1);
+
+  await page.goBack();
+  await page.waitForFunction(() => location.hash === "#/work/postex");
+  await page.waitForSelector(".case-study");
+
+  await page.goForward();
+  await page.waitForFunction(() => location.hash === "#work");
+  await page.waitForFunction(() => {
+    const section = document.getElementById("work");
+    return section && scrollY > 0 &&
+      section.getBoundingClientRect().bottom > 0;
+  });
   await page.waitForSelector(".hero-intro");
   assert.equal(
     await page.locator(".contact-email").getAttribute("href"),

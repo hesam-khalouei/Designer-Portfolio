@@ -24,10 +24,10 @@
   --color-media-clay: #e5dcda;
   --color-media-gray: #e2e1e6;
   --color-media-plum: #e4d9e0;
-  --font-latin: "Inter", sans-serif;
-  --font-rtl: "Vazirmatn", sans-serif;
+  --font-latin: 'Inter', sans-serif;
+  --font-rtl: 'Vazirmatn', sans-serif;
 }
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   color-scheme: dark;
   --color-background: #1e1b1e;
   --color-surface: #282428;
