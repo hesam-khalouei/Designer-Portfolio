@@ -1,4 +1,4 @@
-﻿.admin-app {
+.admin-app {
   --admin-bg: #f3f4f6;
   --admin-surface: #ffffff;
   --admin-surface-muted: #f8f9fb;
@@ -6,9 +6,11 @@
   --admin-text-muted: #687386;
   --admin-border: #e1e5eb;
   --admin-accent: #426b68;
+  --admin-accent-contrast: #ffffff;
   --admin-accent-hover: #345653;
   --admin-accent-soft: #e7f0ee;
   --admin-danger: #b54747;
+  --admin-danger-contrast: #ffffff;
   --admin-radius-sm: 8px;
   --admin-radius-md: 12px;
   --admin-radius-lg: 16px;
@@ -26,9 +28,11 @@
   --admin-text-muted: #a2adbb;
   --admin-border: #343e49;
   --admin-accent: #8bb9b1;
+  --admin-accent-contrast: #171b21;
   --admin-accent-hover: #a2cbc3;
   --admin-accent-soft: #293b39;
   --admin-danger: #ef8989;
+  --admin-danger-contrast: #171b21;
   --admin-shadow: 0 8px 28px rgb(0 0 0 / 18%);
   color-scheme: dark;
 }

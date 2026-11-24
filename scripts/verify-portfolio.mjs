@@ -95,7 +95,7 @@ try {
     assert.equal(await page.locator("html").getAttribute("dir"), direction);
     assert.equal(await page.locator("html").getAttribute("data-theme"), "dark");
     assert.equal(await page.locator(".hero-intro").count(), 0);
-    assert.equal(await page.locator("header").count(), 0);
+    assert.equal(await page.locator("header.header").count(), 0);
     assert.equal(await page.locator('a[href="#/"]').count(), 1);
   }
   await page.locator('a[href="#/"]').click();

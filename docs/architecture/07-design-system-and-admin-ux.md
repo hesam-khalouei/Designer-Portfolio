@@ -167,3 +167,75 @@ Existing `ProjectMedia` behavior and Phone, Laptop, Tablet, Browser,
 Monitor and Multi-device compositions must be preserved. These requirements
 do not authorize replacing existing public presentation behavior during
 the current documentation-only alignment.
+
+## 10. Admin Component Architecture
+
+### 10.1 Implementation strategy
+
+The Admin UI uses an application-owned React component system under:
+
+`src/admin/design-system/`
+
+No third-party UI component library is introduced.
+
+Component composition and API design may be informed by shadcn/ui, while
+semantic HTML and applicable WAI-ARIA patterns define accessibility
+requirements. shadcn/ui is a reference, not a runtime dependency.
+
+### 10.2 Component principles
+
+Every reusable Admin component must:
+
+- Use strict TypeScript props.
+- Prefer native HTML elements and native attributes where appropriate.
+- Support keyboard interaction and visible focus.
+- Preserve semantic HTML and accessible naming.
+- Support the Admin Light and Dark themes.
+- Work in LTR and RTL layouts.
+- Use Admin semantic tokens instead of hardcoded theme-specific colors.
+- Keep styles scoped to `.admin-app`.
+- Respect reduced-motion preferences.
+- Avoid unnecessary dependencies and abstractions.
+
+Color must not be the only means of communicating status or meaning.
+
+### 10.3 Initial primitive contracts
+
+The initial Phase 3.7 primitive set is:
+
+| Component | Responsibility | Initial API requirements |
+|---|---|---|
+| `AdminButton` | Action control | Native button attributes; `variant`: primary, secondary, ghost, danger; `size`: sm, md |
+| `AdminInput` | Form input | Native input attributes; required accessible label; optional hint and error |
+| `AdminCard` | Content container | Children and optional className |
+| `AdminBadge` | Status or category indicator | `tone`: neutral, success, warning, danger; children |
+| `AdminSectionHeading` | Section title | Required title; optional description and eyebrow; configurable h2/h3 level |
+
+The barrel export is `src/admin/design-system/index.ts`.
+
+These APIs are the initial implementation contract and may evolve through
+review when real usage demonstrates a justified need.
+
+### 10.4 Accessibility requirements
+
+- Buttons must expose their native disabled and interaction semantics.
+- Inputs must have programmatically associated labels.
+- Hint and error messages must be associated with their input where
+  applicable.
+- Invalid inputs must expose an accessible invalid state.
+- Focus indicators must remain visible in both themes.
+- Heading levels must preserve a meaningful document hierarchy.
+- Status badges must communicate meaning through text or another
+  non-color cue, not color alone.
+
+### 10.5 Scope boundary and implementation status
+
+The primitive set above belongs to the Phase 3.7 UI Foundation.
+
+Defining these contracts does not mean that the components have already
+been implemented or verified.
+
+The full Design System Manager, editable Brand Palette, semantic-token
+editor, Typography Manager, Font Manager, theme publishing and preview
+workflow remain future roadmap capabilities. They must not be represented
+as available Admin functionality until separately implemented and verified.

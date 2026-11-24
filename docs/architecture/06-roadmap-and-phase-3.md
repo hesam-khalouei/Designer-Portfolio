@@ -1,4 +1,4 @@
-﻿# Roadmap and Phase 3 Execution Plan
+# Roadmap and Phase 3 Execution Plan
 
 ## 1. Roadmap مصوب
 
@@ -116,6 +116,18 @@ Refactor می‌شوند.
 -   دسترس‌پذیری، RTL، Responsive و Dark Mode.
 -   عدم ساخت کامل Design System Manager در این مرحله.
 
+**Execution status:**
+
+- Phase 3.7 implementation completed; details and verification evidence are documented in `docs/phases/phase-3-7-admin-ui-foundation.md`.
+- Admin-specific Light/Dark tokens and scoped styles implemented.
+- Admin Shell and responsive navigation foundation implemented.
+- Initial React primitives implemented: `AdminButton`, `AdminInput`, `AdminCard`, `AdminBadge`, and `AdminSectionHeading`.
+- Existing Language and Theme Providers reused without changing their contracts.
+- English, Persian, Arabic, RTL/LTR, keyboard focus, and reduced-motion foundations preserved.
+- ADR-012 records the accepted application-owned Design System decision.
+- TypeScript check, production build, and UI regression suite passed.
+- Dedicated visual inspection and isolated interactive tests for each primitive were not run; see the phase report.
+- Full Design System Manager and advanced managers remain outside this phase.
 ### 3.8 Verification
 
 -   TypeScript Check.

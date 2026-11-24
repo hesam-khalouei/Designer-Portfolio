@@ -105,3 +105,75 @@ SEO در مرحله مناسب دوباره ارزیابی می‌شود.
 Proposed / Accepted / Rejected / Superseded - تاریخ - زمینه و مسئله -
 تصمیم - گزینه‌های جایگزین - پیامدهای مثبت و منفی - مراحل مهاجرت - تست‌ها و
 مستندات مرتبط
+
+## ADR-012 — Custom Admin Design System
+
+**Status:** Accepted
+**Date:** 2026-11-24
+
+### Context
+
+The Admin UI requires reusable, accessible, theme-aware components that
+support English, Persian, Arabic, RTL and responsive layouts.
+
+Using a general-purpose UI library would introduce an external component
+system and additional dependencies that are not currently required.
+
+### Decision
+
+Build an application-owned React Design System under
+`src/admin/design-system/`, without introducing a third-party UI component
+library.
+
+The implementation will:
+
+- Use composition and component API patterns informed by shadcn/ui.
+- Follow applicable WAI-ARIA and semantic HTML requirements.
+- Use the Admin-specific design tokens rather than Public Site tokens.
+- Support keyboard navigation, visible focus, RTL and Light/Dark themes.
+- Keep component styling scoped to `.admin-app`.
+- Use strict TypeScript props and native HTML attributes where appropriate.
+- Avoid unnecessary abstractions and dependencies.
+
+shadcn/ui is a design and implementation reference, not a runtime
+dependency or a source of copied components.
+
+### Alternatives considered
+
+1. Adopt a complete UI library such as MUI.
+2. Adopt shadcn/ui and its supporting dependencies.
+3. Build an application-owned component system using established
+   accessibility and composition patterns.
+
+Option 3 was selected to retain control over styling, dependencies,
+localization and long-term evolution.
+
+### Consequences
+
+**Positive:**
+
+- Full control over Admin UI behavior and appearance.
+- No additional UI-library runtime dependency.
+- Direct alignment with Admin tokens, RTL and theme requirements.
+- Component APIs can evolve with actual product needs.
+
+**Trade-offs:**
+
+- Accessibility, responsive behavior and component quality must be
+  implemented and verified by the project.
+- The project owns ongoing maintenance and documentation.
+
+### Scope boundary
+
+This decision covers reusable Admin UI primitives and their foundations.
+It does not authorize implementation of the full Design System Manager,
+Typography Manager, Font Manager or Theme Publishing workflow.
+
+Those remain governed by the project Roadmap and their respective
+acceptance criteria.
+
+### Related documents
+
+- `docs/architecture/07-design-system-and-admin-ux.md`
+- `docs/architecture/06-roadmap-and-phase-3.md`
+- `docs/operations/documentation-governance.md`
