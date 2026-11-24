@@ -8,9 +8,11 @@
     "build": "vite build",
     "preview": "vite preview",
     "format": "oxfmt",
-    "test:ui": "node scripts/verify-portfolio.mjs"
+    "test:ui": "node scripts/verify-portfolio.mjs",
+    "test:admin-design-system": "node scripts/test-admin-design-system.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.119.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

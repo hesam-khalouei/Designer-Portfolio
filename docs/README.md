@@ -1,4 +1,4 @@
-# Portfolio Panel — Documentation Index
+﻿# Portfolio Panel — Documentation Index
 
 این پوشه، مرجع مستندات معماری، تصمیم‌ها، ممیزی، سیاست‌های عملیاتی و اجرای پروژه Portfolio Panel است.
 
@@ -51,6 +51,7 @@
 | `phases/phase-3-5-1-routing-baseline-audit.md` | ممیزی Read-only رفتار Routing و الزامات سازگاری        |
 | `phases/phase-3-6-repository-foundation.md` | گزارش اجرای Repository Foundation و نتایج اعتبارسنجی |
 | `phases/phase-3-7-admin-ui-foundation.md` | گزارش پیاده‌سازی Admin UI Foundation و نتایج اعتبارسنجی Phase 3.7 |
+| `phases/phase-3-8-verification.md` | گزارش Verification و نتایج تست‌های Phase 3.8 |
 
 ## وضعیت پروژه
 
@@ -67,7 +68,7 @@
 - Phase 3.5.1 تا Phase 3.5.5: تکمیل‌شده؛ جزئیات در گزارش‌های مربوط ثبت شده‌اند.
 - Phase 3.6: Repository Foundation تکمیل‌شده؛ قرارداد Application، Static Adapter، Use Case و تزریق وابستگی پیاده‌سازی و اعتبارسنجی شدند.
 - Phase 3.7: پیاده‌سازی Admin UI Foundation و اعتبارسنجی‌های اصلی تکمیل شده‌اند؛ محدودیت‌های تست در گزارش Phase 3.7 ثبت شده‌اند.
-- گام بعدی Roadmap: Phase 3.8 — Verification؛ شامل بررسی بصری، تست اختصاصی Primitiveها و Accessibility، Console و Network.
+- Phase 3.8: Verification تکمیل شده؛ TypeScript، Build، Regression UI، تست مستقل پنج Primitive، Keyboard/Focus، روابط Accessibility، Theme، RTL، Console/Network و خروجی Static Base Path تأیید شده‌اند. انتشار واقعی GitHub Pages و ممیزی جامع WCAG/Screen Reader انجام نشده است.
 
 > این فهرست وضعیت مستندات و شواهد موجود را منعکس می‌کند. تأیید طراحی به معنی تکمیل پیاده‌سازی نیست. موارد نیازمند بررسی یا اعتبارسنجی باید صریحاً مشخص شوند.
 

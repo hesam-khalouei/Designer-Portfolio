@@ -8,6 +8,7 @@ Before every task, including small fixes and documentation-only changes, follow:
 
 Read the relevant project documentation before investigating or changing implementation details. Update affected documentation, verify the changes, and produce a concise task report. If no documentation update is warranted, record why.
 
+For feature work, use the Batch Execution Workflow in the governance document: normally plan and execute three related steps, perform necessary targeted checks during implementation, then run combined verification and update affected documentation once at the end of the batch. Do not create repetitive full documentation cycles for every small step. Stop for approval when scope, architecture, or risk materially changes.
 This policy is mandatory and does not replace the instructions below.
 
 React + Vite + Tailwind CSS project running inside Figma Make.

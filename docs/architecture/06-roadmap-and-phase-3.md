@@ -1,4 +1,4 @@
-# Roadmap and Phase 3 Execution Plan
+﻿# Roadmap and Phase 3 Execution Plan
 
 ## 1. Roadmap مصوب
 
@@ -130,16 +130,23 @@ Refactor می‌شوند.
 - Full Design System Manager and advanced managers remain outside this phase.
 ### 3.8 Verification
 
--   TypeScript Check.
--   Build.
--   اجرای اسکریپت Verification موجود.
--   تست Routeها.
--   تست زبان‌ها و RTL.
--   تست Theme.
--   مقایسه بصری صفحات کلیدی.
--   بررسی Console و Network.
--   بررسی Base Path و خروجی GitHub Pages در مرحله مناسب.
+**Status: Completed with documented limitations — 2026-11-24.**
 
+- [x] TypeScript Check.
+- [x] Production Build.
+- [x] Existing Verification script.
+- [x] Route tests.
+- [x] Language and RTL tests.
+- [x] Theme tests.
+- [x] Admin visual review by the user.
+- [x] Isolated Playwright tests for all five Design System primitives.
+- [x] Native attributes, Button interaction, disabled state, keyboard focus, and Input accessibility relationships.
+- [x] Console and Network checks in the isolated fixture.
+- [x] Static Base Path build-output verification using `/portfolio/`.
+- [ ] Live GitHub Pages deployment — NOT RUN.
+- [ ] Comprehensive WCAG and Screen Reader audit — NOT RUN.
+
+Detailed report: `docs/phases/phase-3-8-verification.md`
 ## 3. ترتیب وابستگی‌ها
 
 پیشنهاد ترتیب: 1. 3.2 ساختار و قواعد وابستگی. 2. 3.3 TypeScript و
@@ -213,5 +220,3 @@ Do not infer a one-to-one correspondence between phase numbers. When a
 specific task is planned, identify its applicable Roadmap phase and record
 any relevant Constitution requirement in that task's scope and acceptance
 criteria.
-
-

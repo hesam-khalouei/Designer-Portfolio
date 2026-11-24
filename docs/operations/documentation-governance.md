@@ -93,6 +93,32 @@ Every meaningful implementation task MUST finish with a concise Markdown report 
 
 The report belongs in the most relevant existing location, normally `docs/phases/` for phase work or `docs/operations/` for operational work. Avoid creating duplicate reports for the same task.
 
+## 2.1 Batch Execution Workflow
+
+To reduce repetitive overhead and maintain delivery momentum, related implementation work SHOULD normally be organized into batches of three sequential execution steps.
+
+A batch is the default planning and reporting unit for feature development. Three is a target, not a reason to combine unrelated or high-risk changes.
+
+### Batch lifecycle
+
+1. **Plan the batch:** Review relevant documentation once, inspect repository state, define the three related steps, acceptance criteria, risks, tests, and expected documentation impact.
+2. **Execute incrementally:** Implement the approved steps in sequence. Perform only the immediate checks needed to safely continue after each step. Do not create a separate full documentation/reporting cycle for every small implementation step.
+3. **Verify the batch:** After the implementation steps, run the appropriate combined TypeScript, build, regression, integration, accessibility, or other relevant checks.
+4. **Document together:** After verification, update affected detailed documents, phase reports, architecture references, Roadmap, and indexes in one documentation pass.
+5. **Review and hand off:** Inspect the complete batch diff, Git status, test evidence, and remaining limitations. Obtain approval before staging, committing, or pushing.
+
+### Batch boundaries and exceptions
+
+- Keep the three steps related to one coherent user-visible capability or technical outcome.
+- Each step must remain reviewable and must not silently expand the approved scope.
+- A small targeted check is still required when proceeding without it could conceal a failure or make later work unsafe.
+- Stop and consult the project owner if a blocker, architectural conflict, security concern, or material scope change appears.
+- Security-sensitive, destructive, migration-related, or otherwise high-risk work may use smaller batches and independent verification.
+- Urgent fixes and genuinely independent tasks do not need to be forced into a three-step batch.
+- Documentation must never be postponed beyond the completion and verification of its batch.
+- The final report is normally written once per batch, not once per implementation step.
+
+This workflow changes the cadence of execution and documentation, not the requirement to review relevant documentation, verify actual behavior, preserve historical evidence, or obtain approval for consequential decisions.
 ## 3. Recursive documentation rule
 
 Documentation changes are also project changes and MUST follow this policy.
