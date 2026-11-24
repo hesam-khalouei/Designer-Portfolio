@@ -1,4 +1,4 @@
-﻿# Roadmap and Phase 3 Execution Plan
+# Roadmap and Phase 3 Execution Plan
 
 ## 1. Roadmap مصوب
 
@@ -35,6 +35,27 @@
 ترتیب بالا نقشه راه مفهومی است. بعضی قابلیت‌های پایه Publishing و Media
 برای گردش‌کار Draft ممکن است زودتر و به‌شکل حداقلی لازم شوند؛ این
 وابستگی‌ها در طراحی اجرایی ثبت می‌شوند.
+### Phase 4 and Phase 7 — Dynamic Section boundary
+
+Phase 4 Backend Foundation establishes the persistence contract for the
+existing PortfolioContent model. Case Study sections use stable semantic
+identifiers independent of array position, display order and locale.
+The Infrastructure Adapter provides the compatibility mapping required
+by the existing Public contract. The data model must preserve historical
+revisions and support future section lifecycle changes.
+
+Phase 4 does not implement Section authoring, a Section Manager UI,
+visual block editing or a complete Page Builder.
+
+Phase 7 Page Builder owns the future Section Registry and management
+workflows, including section creation, reordering, disabling or
+archiving, versioned section definitions and block editing. These
+capabilities must build on the stable identity and revision rules
+established by the data model.
+
+The detailed initial payload contract and compatibility rules are
+documented in `architecture/03-data-model-and-publishing.md`,
+Section 12.
 
 ## 2. Phase 3 --- Project Foundation
 
@@ -147,6 +168,23 @@ Refactor می‌شوند.
 - [ ] Comprehensive WCAG and Screen Reader audit — NOT RUN.
 
 Detailed report: `docs/phases/phase-3-8-verification.md`
+### Phase 4 - Backend Foundation execution status
+
+**Status: Local implementation and verification completed with operational limitations - 2026-11-24.**
+
+- [x] Initial schema and security foundation migrations authored.
+- [x] Supabase client foundation and public environment typing added.
+- [x] Published Portfolio Content decoder implemented with locale, identity, schema, payload, and section validation.
+- [x] Supabase Portfolio Repository implemented behind the existing Application contract.
+- [x] Decoder and Repository isolated tests passed (8 and 7 tests respectively).
+- [x] TypeScript, Admin Design System, Public UI regression, and production build passed.
+- [ ] Live Supabase migrations - NOT RUN.
+- [ ] Live database connectivity and RLS/security verification - NOT RUN.
+- [ ] Authentication provisioning and login/MFA flows - NOT COMPLETED.
+- [x] Explicit Supabase Repository bootstrap selection implemented; Static remains the default source. Runtime source-selection test not run.
+
+Detailed report: `docs/phases/phase-4-backend-foundation.md`
+
 ## 3. ترتیب وابستگی‌ها
 
 پیشنهاد ترتیب: 1. 3.2 ساختار و قواعد وابستگی. 2. 3.3 TypeScript و

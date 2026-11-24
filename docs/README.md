@@ -21,10 +21,10 @@
 | -------------------------------------------------------------- | --------------------------------------------------------- |
 | `architecture/01-project-charter.md`                           | هدف، دامنه، الزامات محصول و اصول پروژه                    |
 | `architecture/02-architecture-decisions.md`                    | تصمیم‌های مصوب معماری و ADRها                             |
-| `architecture/03-data-model-and-publishing.md`                 | مدل داده، revision، انتشار مستقل و rollback               |
+| `architecture/03-data-model-and-publishing.md` | مدل داده، قرارداد Payload، Sectionهای پویا، Revision و انتشار |
 | `architecture/04-security-storage-api.md`                      | امنیت، RLS، Storage، API و Repository Pattern             |
 | `architecture/05-current-state-audit.md`                       | ممیزی وضعیت اولیه کد و ریسک‌ها                            |
-| `architecture/06-roadmap-and-phase-3.md`                       | نقشه راه و برنامه Phase 3                                 |
+| `architecture/06-roadmap-and-phase-3.md` | نقشه راه Phase 3 تا 11 و برنامه اجرای فازها |
 | `architecture/07-design-system-and-admin-ux.md`                | Design System، Typography، Page Builder و Admin UX        |
 | `architecture/08-phase-3-2-project-structure.md`               | ساختار هدف پروژه و مرزبندی ماژول‌ها                       |
 | `architecture/phase-3-2-project-structure.md`                  | سند ساختار Phase 3.2؛ نیازمند بررسی هم‌پوشانی با سند قبلی |
@@ -52,6 +52,7 @@
 | `phases/phase-3-6-repository-foundation.md` | گزارش اجرای Repository Foundation و نتایج اعتبارسنجی |
 | `phases/phase-3-7-admin-ui-foundation.md` | گزارش پیاده‌سازی Admin UI Foundation و نتایج اعتبارسنجی Phase 3.7 |
 | `phases/phase-3-8-verification.md` | گزارش Verification و نتایج تست‌های Phase 3.8 |
+| `phases/phase-4-backend-foundation.md` | Phase 4 implementation, verification, migration readiness, security review, and operational limitations report |
 
 ## وضعیت پروژه
 
@@ -69,6 +70,6 @@
 - Phase 3.6: Repository Foundation تکمیل‌شده؛ قرارداد Application، Static Adapter، Use Case و تزریق وابستگی پیاده‌سازی و اعتبارسنجی شدند.
 - Phase 3.7: پیاده‌سازی Admin UI Foundation و اعتبارسنجی‌های اصلی تکمیل شده‌اند؛ محدودیت‌های تست در گزارش Phase 3.7 ثبت شده‌اند.
 - Phase 3.8: Verification تکمیل شده؛ TypeScript، Build، Regression UI، تست مستقل پنج Primitive، Keyboard/Focus، روابط Accessibility، Theme، RTL، Console/Network و خروجی Static Base Path تأیید شده‌اند. انتشار واقعی GitHub Pages و ممیزی جامع WCAG/Screen Reader انجام نشده است.
+- Phase 4: Backend Foundation local implementation and verification completed for migrations, Supabase client, content decoder, Supabase Repository, and explicit Static/Supabase bootstrap selection. Static remains the default source. Live migrations, database connectivity, operational RLS verification, and authentication flows remain pending; see the Phase 4 report.
 
 > این فهرست وضعیت مستندات و شواهد موجود را منعکس می‌کند. تأیید طراحی به معنی تکمیل پیاده‌سازی نیست. موارد نیازمند بررسی یا اعتبارسنجی باید صریحاً مشخص شوند.
-

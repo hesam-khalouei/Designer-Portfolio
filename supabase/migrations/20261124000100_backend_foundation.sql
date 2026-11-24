@@ -26,8 +26,11 @@ create table public.content_entities (
       'certification'
     )
   ),
+  entity_key text not null check (length(btrim(entity_key)) > 0),
+  sort_order integer not null default 0 check (sort_order >= 0),
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  constraint content_entities_entity_key_unique unique (entity_type, entity_key)
 );
 
 create table public.publication_units (
@@ -93,6 +96,9 @@ create table public.publish_events (
 
 create index publication_units_entity_idx
   on public.publication_units (entity_id);
+
+create index content_entities_order_idx
+  on public.content_entities (entity_type, sort_order, entity_key);
 
 create index content_revisions_created_at_idx
   on public.content_revisions (publication_unit_id, created_at desc);

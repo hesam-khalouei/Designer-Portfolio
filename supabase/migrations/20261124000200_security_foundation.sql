@@ -90,7 +90,7 @@ from public, anon, authenticated;
 
 grant select on public.admin_profiles to authenticated;
 grant select on public.content_entities to authenticated;
-grant insert (entity_type) on public.content_entities to authenticated;
+grant insert (entity_type, entity_key, sort_order) on public.content_entities to authenticated;
 
 grant select on public.publication_units to authenticated;
 grant insert (entity_id, locale_code) on public.publication_units to authenticated;
@@ -172,6 +172,8 @@ create or replace function public.read_published_portfolio_content()
 returns table (
   entity_id uuid,
   entity_type text,
+  entity_key text,
+  sort_order integer,
   locale_code text,
   schema_version integer,
   payload jsonb
@@ -184,6 +186,8 @@ as $$
   select
     e.id,
     e.entity_type,
+    e.entity_key,
+    e.sort_order,
     pu.locale_code,
     cr.schema_version,
     cr.payload
