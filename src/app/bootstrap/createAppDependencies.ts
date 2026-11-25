@@ -1,6 +1,7 @@
-﻿import { GetPortfolioContent } from "../../application/use-cases/GetPortfolioContent";
+import { GetPortfolioContent } from "../../application/use-cases/GetPortfolioContent";
 import { StaticPortfolioRepository } from "../../infrastructure/repositories/StaticPortfolioRepository";
 import { SupabasePortfolioRepository } from "../../infrastructure/repositories/SupabasePortfolioRepository";
+import { SupabaseAdminAuthRepository } from "../../infrastructure/repositories/SupabaseAdminAuthRepository";
 import { supabase } from "../../infrastructure/supabase/client";
 
 const portfolioContentSource =
@@ -20,6 +21,7 @@ export function createAppDependencies() {
 
   return {
     getPortfolioContent: new GetPortfolioContent(portfolioRepository),
+    adminAuthRepository: new SupabaseAdminAuthRepository(supabase),
   };
 }
 

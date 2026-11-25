@@ -1,4 +1,4 @@
-﻿# Phase 4 - Backend Foundation
+# Phase 4 - Backend Foundation
 
 ## Status
 
@@ -65,6 +65,7 @@ Live Supabase integration and operational security verification remain pending.
 - `scripts/test-portfolio-content-decoder.mjs`
 - `scripts/test-supabase-portfolio-repository.mjs`
 - `scripts/test-app-bootstrap.mjs`
+- `scripts/test-supabase-migrations.mjs`
 - `package.json`
 
 ## Verification evidence
@@ -75,6 +76,7 @@ Live Supabase integration and operational security verification remain pending.
 | Portfolio Content Decoder | 8 tests PASS |
 | Supabase Portfolio Repository | 7 tests PASS |
 | Application Bootstrap | 4 scenarios PASS |
+| Supabase Migration Static Verification | 12 groups PASS |
 | Admin Design System | 9 checks PASS |
 | Public UI regression | PASS |
 | Production build | PASS |
@@ -93,6 +95,16 @@ Added `test:app-bootstrap` to verify application bootstrap source selection thro
 Command: `npx --yes pnpm@10.34.3 run test:app-bootstrap` ? 4 scenarios PASS.
 
 The test injects environment values into isolated Vite servers. It does not read or modify `.env.local`, connect to a database, or verify live Supabase behavior. Vite logs the expected invalid-source rejection during the negative test.
+
+### Supabase Migration static verification
+
+Added test:supabase-migrations to inspect both SQL migrations without connecting to PostgreSQL or executing database changes.
+
+The 12 passing groups cover migration ordering, tables and RLS, identity and locale constraints, composite foreign keys, publish-event constraints, privileges, admin policies, immutable records, SECURITY DEFINER configuration, published-only reads, and public view grants.
+
+Command: npx --yes pnpm@10.34.3 run test:supabase-migrations — 12 groups PASS.
+
+Static SQL inspection only; PostgreSQL syntax/runtime validity, live grants, RLS behavior, and database security remain unverified. Live migration execution remains NOT RUN.
 
 ### Development server incident
 
@@ -273,3 +285,277 @@ No migration, application source, dependency, environment, or database files wer
 5. Implement and verify admin provisioning, authentication, MFA, and AAL2 enforcement for future privileged operations.
 6. Implement secure publishing/rollback/unpublish operations with server-side authorization, audit events, idempotency, and optimistic concurrency.
 7. Keep Static as the default source until real Supabase integration is verified.
+
+## Batch 4.6 — Authentication and Admin Access Design
+
+**Status: Architecture review and authentication design completed; implementation NOT STARTED.**
+
+### Scope
+
+This batch reviewed the existing Supabase client, Admin shell, application routing, provider composition, database admin model, and approved security architecture. It defines the proposed Authentication and Admin access design without implementing login UI, session management, provisioning, MFA, or database changes.
+
+### Documents reviewed
+
+- `docs/operations/documentation-governance.md`
+- `docs/README.md`
+- `docs/architecture/02-architecture-decisions.md`
+- `docs/architecture/03-data-model-and-publishing.md`
+- `docs/architecture/04-security-storage-api.md`
+- `docs/architecture/06-roadmap-and-phase-3.md`
+- This Phase 4 report
+
+### Current implementation findings
+
+- `src/infrastructure/supabase/client.ts` creates an optional Supabase client and configures persistent sessions, automatic token refresh, and URL session detection.
+- These SDK settings do not constitute an implemented Authentication lifecycle.
+- `src/admin/AdminApp.tsx` currently renders the Admin shell without an authentication or active-admin check.
+- `src/App.tsx` directly renders `AdminApp` for `#/admin`; no route guard currently exists.
+- `AppProviders` currently composes only language and theme providers.
+- No Application Authentication repository, use case, session provider, login flow, or MFA implementation exists.
+- `admin_profiles.user_id` references `auth.users(id)`. The profile defaults to inactive, and a partial unique index permits at most one active admin.
+- The security migration derives identity through `auth.uid()` and restricts administrative database access through `private.is_active_admin()`.
+- Authenticated browser clients do not have direct privileges to provision or modify admin profiles.
+
+### Confirmed security requirements
+
+The following requirements are already established by the approved security architecture and remain unchanged:
+
+- Supabase Auth is the initial Authentication provider.
+- Public sign-up is disabled.
+- The initial release supports one active admin account.
+- Admin identity is derived from `auth.uid()`, never from a client-supplied user ID.
+- TOTP MFA is recommended.
+- Publish, Rollback, and security-sensitive operations require AAL2.
+- Route visibility is not an authorization boundary. Backend authorization and RLS remain mandatory.
+- Privileged publishing operations must use secure server-side functions rather than direct browser pointer updates.
+
+### Proposed Authentication architecture
+
+The implementation should preserve the existing dependency boundaries:
+
+| Layer | Responsibility |
+|---|---|
+| Domain | Provider-neutral identity, session, and assurance concepts where needed |
+| Application | Authentication repository contract and use cases |
+| Infrastructure | Supabase Auth adapter and provider-specific error mapping |
+| App Providers | Admin authentication state and lifecycle subscription |
+| Admin Routing | User experience guard for signed-out and unauthorized states |
+| Backend | Authoritative active-admin, RLS, and AAL2 enforcement |
+
+The UI and Application layers must not depend on Supabase SDK types.
+
+The proposed session lifecycle includes initial session resolution, subscription to authentication state changes, token refresh through the SDK, explicit sign-out, and subscription cleanup. Tokens must not be manually managed by application code.
+
+The Admin access state should distinguish at least loading, anonymous, authenticated active admin, unauthorized/inactive account, and access-check failure. A failed or unavailable authorization check must never grant access.
+
+### Login and admin provisioning
+
+Email/password is the proposed initial login method, subject to confirmation before implementation. Public registration remains disabled.
+
+Admin account creation and activation must use a controlled trusted provisioning process. The browser must not receive a Service Role key or gain profile-provisioning privileges.
+
+An Auth session alone is insufficient for Admin access: the authenticated identity must also have an active `admin_profiles` record. Deactivation must deny database access even if an Auth session remains valid.
+
+Account recovery and the operational provisioning procedure must be defined before production activation.
+
+### MFA and elevated assurance
+
+TOTP enrollment and verification should be part of the admin security workflow.
+
+A normal authenticated session may have AAL1. Sensitive operations must require AAL2. Client-side assurance checks may guide the interface, but the backend must independently validate the assurance level before executing a privileged operation.
+
+The current foundation migrations do not implement AAL2 enforcement or privileged publishing RPCs. These remain prerequisites before enabling Publish, Rollback, or security-management operations.
+
+### Route guard and backend authorization
+
+A future Admin route guard should prevent the Admin shell from appearing before authentication and active-admin checks complete. It should provide distinct login, loading, unauthorized, and recoverable error states.
+
+This guard is a user-experience control only. RLS, trusted server-side operations, and database identity checks remain the actual security boundary.
+
+### Verification plan for the future implementation
+
+- Authentication repository contract tests using a fake provider.
+- Initial session resolution and authentication-state subscription tests.
+- Sign-in, sign-out, refresh, and subscription cleanup tests.
+- Signed-out, active-admin, inactive-admin, and authorization-error route tests.
+- TOTP enrollment and verification tests.
+- AAL1 rejection and AAL2 acceptance tests for sensitive operations.
+- Backend tests proving that client-supplied user IDs cannot grant admin access.
+- Live controlled-database tests for active and inactive admin RLS behavior.
+- Regression checks for Public routing, localization, and existing Static/Supabase content-source behavior.
+
+### Verification record
+
+| Check | Result |
+|---|---|
+| Existing Authentication and Admin source inspection | COMPLETED |
+| Application routing and provider inspection | COMPLETED |
+| Admin database model and security migration inspection | COMPLETED |
+| Approved data-model and security architecture review | COMPLETED |
+| Authentication implementation tests | NOT RUN — implementation not started |
+| Live Supabase Authentication and RLS tests | NOT RUN |
+| Database migrations or provisioning | NOT RUN |
+
+### Files changed in this batch
+
+Documentation-only changes are planned for:
+
+- `docs/phases/phase-4-backend-foundation.md`
+- `docs/architecture/04-security-storage-api.md`
+- `docs/architecture/06-roadmap-and-phase-3.md`
+- `docs/README.md`
+
+No application source, dependency, environment, migration, or database changes are part of this batch.
+
+### Remaining risks and follow-up
+
+- Final login method and account recovery procedure require confirmation before implementation.
+- Admin provisioning must be operationally defined and tested.
+- Session storage and browser security protections must be reviewed against the final hosting architecture.
+- TOTP enrollment, recovery, and AAL2 enforcement are not implemented.
+- Route protection and backend authorization integration remain pending.
+- Live Supabase behavior remains unverified.
+
+**Batch 4.6 conclusion:** Authentication and Admin access design review completed. Implementation and live security verification remain pending.
+
+## Batch 4.7 — Authentication Application Contract (2026-11-25)
+
+### Scope and decisions
+
+- Confirmed Email/Password through Supabase Auth as the initial login method.
+- Public sign-up remains disabled; the initial release supports one active admin.
+- Added provider-neutral Domain Authentication models:
+  - `AdminIdentity`: stable identity ID and email.
+  - `AdminSession`: identity, optional Unix-millisecond expiration timestamp, and assurance level.
+  - `AuthAssuranceLevel`: `aal1` and `aal2`.
+- Added the Application `AdminAuthRepository` contract for sign-in, current-session restoration, sign-out, and authentication-state subscription.
+- Added `SignInAdmin`, `SignOutAdmin`, and `GetAdminSession` use cases.
+- Added typed `AdminAuthError` codes for credentials, session, authorization, MFA, rate limiting, provider availability, and general operation failures.
+- Authentication remains separate from active-admin authorization. A valid session alone does not authorize Admin access.
+- No Supabase SDK dependency was added to Domain or Application.
+
+### Verification
+
+| Check | Result |
+|---|---|
+| Admin Authentication contract tests | 5 PASS |
+| Portfolio content decoder | 8 PASS |
+| Supabase portfolio repository | 7 PASS |
+| Application bootstrap | 4 PASS |
+| Static migration verification | 12 groups PASS |
+| TypeScript strict check | PASS (exit 0) |
+| Production build | PASS |
+
+The authentication tests use a fake in-memory repository. They verify signed-out session restoration, successful sign-in, invalid credentials, sign-out notification, and typed authentication errors.
+
+Node emitted a `DEP0205` deprecation warning during Vite SSR test execution. Tests completed successfully. The bootstrap test also intentionally exercises an invalid source value, which produces an expected Vite SSR error log before the test passes.
+
+### Files added or changed
+
+- `src/domain/auth/AdminIdentity.ts`
+- `src/domain/auth/AdminSession.ts`
+- `src/domain/auth/AuthAssuranceLevel.ts`
+- `src/application/repositories/AdminAuthRepository.ts`
+- `src/application/use-cases/SignInAdmin.ts`
+- `src/application/use-cases/SignOutAdmin.ts`
+- `src/application/use-cases/GetAdminSession.ts`
+- `src/application/errors/AdminAuthError.ts`
+- `scripts/test-admin-auth-contract.mjs`
+- `package.json` — `test:admin-auth-contract` script
+
+### Limitations and follow-up
+
+- The fake repository verifies the Application contract only; no real Supabase Auth adapter exists yet.
+- Login UI, Auth provider integration, session lifecycle integration, and route guard remain pending.
+- Active-admin profile lookup and authorization remain a separate responsibility and are not implemented by this contract.
+- TOTP enrollment, MFA verification, AAL2 enforcement, account provisioning, and recovery procedures remain pending.
+- No live Supabase connection, migration execution, or database provisioning was performed.
+- No commit or push was performed.
+
+**Batch 4.7 conclusion:** Provider-neutral Domain and Application Authentication contracts and independent fake-repository tests are implemented and locally verified. This does not constitute production Authentication or Admin authorization.
+
+## Batch 4.8 — Supabase Authentication Adapter (2026-11-25)
+
+### Scope and implementation
+
+- Implemented `SupabaseAdminAuthRepository` in Infrastructure behind the existing Application `AdminAuthRepository` contract.
+- Added Supabase Session mapping to provider-neutral `AdminSession`:
+  - Identity ID and email are validated.
+  - Supabase expiry seconds are converted to Unix milliseconds.
+  - Raw access and refresh tokens are not exposed through Domain/Application sessions.
+  - Assurance is conservatively represented as `aal1`; no AAL2 claim is made.
+- Implemented password sign-in, persisted-session restoration, sign-out, Authentication state subscription, and unsubscribe handling.
+- Added provider error mapping for invalid credentials, expired/missing sessions, rate limits, network/provider failures, and generic operation failures.
+- Authentication remains separate from active-admin authorization. The adapter does not treat a valid session as proof of an active admin profile.
+
+### Verification
+
+| Check | Result |
+|---|---|
+| Admin Authentication contract tests | 5 PASS |
+| Supabase Admin Authentication adapter tests | 12 PASS |
+| Portfolio content decoder | 8 PASS |
+| Supabase portfolio repository | 7 PASS |
+| Application bootstrap | 4 PASS |
+| Static migration verification | 12 groups PASS |
+| Admin Design System | PASS |
+| Public UI regression (`test:ui`) | PASS |
+| TypeScript strict check | PASS (exit 0) |
+| Production build | PASS |
+
+The UI regression suite was run against the already-running Vite Preview at `http://localhost:8443/` by setting `PREVIEW_URL`. It verified responsive layouts at 1440, 1280, 768, and 390 pixels in English, Persian, and Arabic; Admin route isolation; localization and preference persistence; mobile menu and Escape focus behavior; all 39 localized case studies; documented metrics; email behavior; and absence of runtime errors.
+
+The Node `DEP0205` deprecation warning was observed during local test execution; it did not prevent successful test completion.
+
+### Files added or changed
+
+- `src/infrastructure/repositories/SupabaseAdminAuthRepository.ts`
+- `scripts/test-supabase-admin-auth-repository.mjs`
+- `package.json` — `test:supabase-admin-auth-repository` script
+- Documentation updates are recorded in this report and the related architecture, roadmap, and index documents.
+
+### Limitations and follow-up
+
+- Verification uses a fake Supabase client; no live Supabase Auth request or database connection was made.
+- No Login UI, Auth provider integration, or Admin route guard was implemented in this batch.
+- Active-admin profile lookup, authorization, provisioning, and RLS runtime verification remain separate pending work.
+- MFA enrollment/verification and authoritative AAL2 enforcement remain unimplemented. The adapter's `aal1` mapping must not be interpreted as MFA support.
+- No migrations were executed and no account was provisioned.
+- No commit or push was performed.
+
+**Batch 4.8 conclusion:** The Supabase Authentication Infrastructure adapter and its isolated fake-client tests are implemented and locally verified. This does not constitute end-to-end Authentication, active-admin authorization, or production security verification.
+
+### Batch 4.9 — React Authentication Lifecycle & Login Flow — 2026-11-25
+
+Implemented:
+- React `AdminAuthProvider` with session restoration, auth-state subscription, sign-in, sign-out, and loading/authenticated/unauthenticated/error states.
+- Fail-closed behavior for session restoration and synchronous subscription-registration failures.
+- Email/Password Admin login page with generic authentication error messages.
+- Admin route gate. Public routes remain outside the Admin Authentication provider.
+- Playwright fixture and lifecycle tests, including subscription failure.
+
+Verification:
+| Check | Result |
+|---|---|
+| Admin Authentication lifecycle | 10 PASS |
+| Authentication Application contract | 5 PASS |
+| Supabase Auth adapter fake-client tests | 12 PASS |
+| Portfolio content decoder | 8 PASS |
+| Supabase portfolio repository | 7 PASS |
+| Application bootstrap | 4 PASS |
+| Static migration verification | 12 groups PASS |
+| Admin Design System | PASS |
+| Public UI regression | PASS |
+| TypeScript strict check | PASS |
+| Oxfmt check on 5 changed files | PASS |
+| Production build | PASS |
+
+Security boundaries and limitations:
+- The route gate is a UX boundary only. Backend authorization and RLS remain authoritative.
+- A valid Auth session does not establish an active Admin profile.
+- Admin provisioning, active-admin authorization integration, live Supabase Auth/database/RLS verification, MFA enrollment, and authoritative AAL2 enforcement remain pending.
+- The adapter continues to map assurance conservatively to AAL1.
+- No live migrations, account provisioning, or database operations were performed.
+- No commit or push was performed.
+
+**Batch 4.9 conclusion:** React Authentication lifecycle, login flow, and fail-closed Admin route gating are implemented and locally verified. This is not production authorization or MFA/AAL2 completion.

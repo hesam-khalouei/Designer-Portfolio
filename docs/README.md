@@ -1,4 +1,4 @@
-﻿# Portfolio Panel — Documentation Index
+# Portfolio Panel — Documentation Index
 
 این پوشه، مرجع مستندات معماری، تصمیم‌ها، ممیزی، سیاست‌های عملیاتی و اجرای پروژه Portfolio Panel است.
 
@@ -70,6 +70,10 @@
 - Phase 3.6: Repository Foundation تکمیل‌شده؛ قرارداد Application، Static Adapter، Use Case و تزریق وابستگی پیاده‌سازی و اعتبارسنجی شدند.
 - Phase 3.7: پیاده‌سازی Admin UI Foundation و اعتبارسنجی‌های اصلی تکمیل شده‌اند؛ محدودیت‌های تست در گزارش Phase 3.7 ثبت شده‌اند.
 - Phase 3.8: Verification تکمیل شده؛ TypeScript، Build، Regression UI، تست مستقل پنج Primitive، Keyboard/Focus، روابط Accessibility، Theme، RTL، Console/Network و خروجی Static Base Path تأیید شده‌اند. انتشار واقعی GitHub Pages و ممیزی جامع WCAG/Screen Reader انجام نشده است.
-- Phase 4: Backend Foundation local implementation and verification completed for migrations, Supabase client, content decoder, Supabase Repository, and explicit Static/Supabase bootstrap selection, including four passing local bootstrap scenarios. Static remains the default source. Live migrations, database connectivity, operational RLS verification, and authentication flows remain pending; see the Phase 4 report.
+- Phase 4: Backend Foundation includes verified migrations, Supabase content integration, bootstrap selection, and static security checks. Batch 4.6 architecture review, Batch 4.7 provider-neutral Authentication contracts, and Batch 4.8 Supabase Authentication adapter are complete and locally verified. Authentication contract tests: 5 PASS; Supabase Auth adapter fake-client tests: 12 PASS. TypeScript, production build, Admin Design System, and Public UI regression passed. Login UI, Auth provider integration, active-admin authorization, provisioning, MFA/AAL2 enforcement, and route protection remain pending. Static remains the default source; live database and RLS verification have not been performed.
 
 > این فهرست وضعیت مستندات و شواهد موجود را منعکس می‌کند. تأیید طراحی به معنی تکمیل پیاده‌سازی نیست. موارد نیازمند بررسی یا اعتبارسنجی باید صریحاً مشخص شوند.
+
+**Batch 4.7 update — 2026-11-25:** Authentication Domain/Application contracts and five fake-repository tests are implemented and verified. This is not production Authentication: Supabase Auth integration, login UI, active-admin authorization, provisioning, MFA/AAL2, and route protection remain pending.
+
+**Batch 4.9 update — 2026-11-25:** React Admin Authentication lifecycle, Email/Password login, and fail-closed route gate are implemented and locally verified. Auth lifecycle tests: 10 PASS. TypeScript, formatting, and production build pass. The route gate is UX-only; active-admin authorization, provisioning, live Supabase/RLS verification, MFA, and AAL2 enforcement remain pending.

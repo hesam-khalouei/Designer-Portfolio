@@ -119,3 +119,120 @@ Interfaces 5. Infrastructure Adapters (Supabase در نسخه اول)
 هیچ Service Role Key، Database Password، Signing Secret یا Secret دیگر
 در Frontend، Repository عمومی یا Build Artifact قرار نگیرد. Public/Anon
 key فقط با RLS درست قابل استفاده است.
+
+### 1.1 Admin Authentication and Session Lifecycle
+
+The Authentication implementation must preserve the existing application dependency boundaries:
+
+- Domain: provider-neutral identity, session, and assurance concepts where needed.
+- Application: Authentication repository contract and use cases.
+- Infrastructure: Supabase Auth adapter and provider-specific error mapping.
+- App Providers: Admin authentication state and session lifecycle.
+- Admin Routing: user-experience guard for signed-out and unauthorized states.
+- Backend: authoritative active-admin, RLS, and assurance enforcement.
+
+Supabase SDK types must not leak into Domain, Application, or UI contracts.
+
+The proposed session lifecycle includes:
+
+1. Resolve the initial persisted session.
+2. Subscribe to Authentication state changes.
+3. Use the Supabase SDK for token refresh.
+4. Support explicit sign-out.
+5. Unsubscribe when the owning provider is disposed.
+
+Application code must not manually store or manage access and refresh tokens.
+
+Admin access states should distinguish:
+
+- Loading.
+- Anonymous.
+- Authenticated active admin.
+- Authenticated but unauthorized or inactive admin.
+- Authorization check failure.
+
+A failed or unavailable active-admin check must fail closed. An Authentication session alone does not establish Admin authorization.
+
+### 1.2 Active Admin Authorization and Provisioning
+
+The authenticated identity must be derived exclusively from `auth.uid()`. The active `admin_profiles` record must correspond to that identity.
+
+Admin account creation and activation require a trusted provisioning process. Browser clients must not receive the Supabase Service Role key or receive privileges to provision or activate admin profiles.
+
+An inactive admin may retain a valid Supabase Auth session, but must not receive administrative database access. RLS and backend authorization remain authoritative.
+
+The initial login method is confirmed as Email/Password through Supabase Auth. Public sign-up remains disabled.
+
+Account recovery, administrator replacement, and emergency recovery procedures must be defined before production activation.
+
+### 1.3 MFA and Elevated Assurance
+
+TOTP MFA is the recommended second factor.
+
+A normal authenticated session may have Authentication Assurance Level AAL1. Sensitive operations must require AAL2, including:
+
+- Publish.
+- Rollback.
+- Security-sensitive account or permission changes.
+
+Client-side assurance checks may control the visibility or enabled state of UI actions, but must never be the sole enforcement mechanism.
+
+The backend RPC or Edge Function responsible for a sensitive operation must independently validate the authenticated identity, active-admin status, and required assurance level before performing the operation.
+
+The current foundation migrations do not implement AAL2 enforcement or privileged publishing RPCs. These are implementation prerequisites before enabling the corresponding operations.
+
+TOTP enrollment, verification, factor recovery, and loss-of-device procedures must be tested before production activation.
+
+### 1.4 Admin Route Guard and Backend Boundary
+
+The Admin route should eventually resolve Authentication and active-admin authorization before rendering the Admin shell.
+
+Expected route states include loading, login required, unauthorized, recoverable authorization error, and authorized Admin access.
+
+The route guard is strictly a user-experience boundary. It does not replace:
+
+- Database RLS policies.
+- `auth.uid()` identity derivation.
+- Active-admin checks.
+- Backend authorization for privileged operations.
+- AAL2 enforcement.
+
+Direct navigation, manipulated client state, or a valid Authentication session must never bypass backend authorization.
+
+### 1.5 Browser Session Security
+
+The existing Supabase client enables persistent sessions and automatic token refresh. This configuration does not by itself constitute a complete session security implementation.
+
+The implementation must avoid manual token storage, use HTTPS in production, preserve safe React rendering practices, and include appropriate browser security protections such as Content Security Policy where supported by the final hosting architecture.
+
+The final session-storage strategy must be reviewed again if the hosting architecture introduces server-side rendering or server-managed sessions.
+
+### Batch 4.7 follow-up — 2026-11-25
+
+Provider-neutral Authentication Domain models, the Application repository contract, sign-in/sign-out/session use cases, typed Application errors, and five fake-repository contract tests are now implemented and locally verified. Actual Supabase Auth integration, login UI, active-admin authorization, provisioning, MFA/AAL2 enforcement, and route protection remain pending.
+
+
+### Batch 4.8 follow-up — 2026-11-25
+
+The Supabase Authentication Infrastructure adapter now implements the Application `AdminAuthRepository` contract. It maps Supabase sessions to provider-neutral `AdminSession` values, restores persisted sessions, handles password sign-in and sign-out, subscribes to Authentication state changes, and supports subscription cleanup.
+
+Security boundaries and limitations:
+
+- Supabase SDK types and raw access/refresh tokens must not cross the Infrastructure boundary.
+- Missing or invalid identity data must fail closed.
+- Session expiry is represented in Unix milliseconds.
+- The adapter currently reports `aal1` conservatively. It does not establish or claim AAL2, and factor enrollment alone must not be used to infer assurance.
+- Authentication state is not active-admin authorization. The adapter does not replace the active `admin_profiles` check or backend RLS enforcement.
+- Adapter tests use a fake Supabase client. Live Supabase Auth, database, RLS, provisioning, MFA, and AAL2 behavior remain unverified.
+- Login UI, Auth provider lifecycle integration, and Admin route protection remain pending.
+
+### Batch 4.9 follow-up — 2026-11-25
+
+The React Admin Authentication lifecycle and Email/Password login flow are implemented:
+- `AdminAuthProvider` restores the session and subscribes to Auth changes.
+- Loading, authenticated, unauthenticated, and error states are represented explicitly.
+- Session restoration and synchronous subscription-registration failures fail closed.
+- The login page displays generic authentication errors.
+- `AdminAuthGate` prevents Admin UI rendering until a session is restored and authenticated.
+
+The gate is a client-side UX control, not an authorization boundary. Authentication does not establish active-admin authorization. Backend checks and RLS remain authoritative. Active-admin profile integration, provisioning, live Supabase/RLS verification, MFA enrollment, and AAL2 enforcement remain pending. The current adapter reports AAL1 conservatively.

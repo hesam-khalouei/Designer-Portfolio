@@ -181,7 +181,8 @@ Detailed report: `docs/phases/phase-3-8-verification.md`
 - [ ] Live Supabase migrations - NOT RUN.
 - [ ] Live database connectivity and RLS/security verification - NOT RUN.
 - [ ] Authentication provisioning and login/MFA flows - NOT COMPLETED.
-- [x] Explicit Supabase Repository bootstrap selection implemented; Static remains the default source. Local bootstrap source-selection test: 4 scenarios PASS. Live Supabase connectivity and security verification remain pending.
+- [x] Explicit Supabase Repository bootstrap selection implemented; Static remains the default source. Local bootstrap source-selection test: 4 scenarios PASS; static migration verification: 12 groups PASS. Live Supabase connectivity, migration execution, and runtime security verification remain pending.
+- [x] Admin Authentication and session architecture reviewed and documented (Batch 4.6); login, provisioning, MFA, route guard, and backend enforcement implementation remain pending.
 
 Detailed report: `docs/phases/phase-4-backend-foundation.md`
 
@@ -258,3 +259,11 @@ Do not infer a one-to-one correspondence between phase numbers. When a
 specific task is planned, identify its applicable Roadmap phase and record
 any relevant Constitution requirement in that task's scope and acceptance
 criteria.
+
+**Batch 4.7 update — 2026-11-25:** Provider-neutral Authentication Domain/Application contracts and five independent fake-repository tests are implemented. Actual login integration, Supabase Auth adapter, active-admin authorization, provisioning, MFA/AAL2 enforcement, and route guard remain pending.
+
+- [x] Batch 4.8 — Supabase Authentication Infrastructure adapter implemented and independently verified with 12 fake-client scenarios. Application Authentication contract tests: 5 PASS. TypeScript, production build, Admin Design System, and Public UI regression passed. The adapter maps sessions conservatively to AAL1; active-admin authorization, Login UI, Auth provider integration, provisioning, MFA/AAL2 enforcement, and live Supabase verification remain pending.
+
+**Batch 4.8 update — 2026-11-25:** Supabase Auth adapter and fake-client tests are complete. No live Supabase Auth or database connection was used. Authentication remains distinct from active-admin authorization.
+
+**Batch 4.9 update — 2026-11-25:** React Authentication lifecycle, Email/Password login page, and fail-closed Admin route gate are implemented. The lifecycle suite passes 10 scenarios; TypeScript, formatting, and production build pass. The gate is UX-only. Active-admin authorization, provisioning, live Supabase/RLS verification, MFA, and AAL2 enforcement remain pending.

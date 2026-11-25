@@ -12,7 +12,11 @@
     "test:admin-design-system": "node scripts/test-admin-design-system.mjs",
     "test:portfolio-content-decoder": "node scripts/test-portfolio-content-decoder.mjs",
     "test:supabase-portfolio-repository": "node scripts/test-supabase-portfolio-repository.mjs",
-    "test:app-bootstrap": "node scripts/test-app-bootstrap.mjs"
+    "test:app-bootstrap": "node scripts/test-app-bootstrap.mjs",
+    "test:supabase-migrations": "node scripts/test-supabase-migrations.mjs",
+    "test:admin-auth-contract": "node scripts/test-admin-auth-contract.mjs",
+    "test:supabase-admin-auth-repository": "node scripts/test-supabase-admin-auth-repository.mjs",
+    "test:admin-auth-lifecycle": "node scripts/test-admin-auth-lifecycle.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.2",
