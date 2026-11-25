@@ -7,7 +7,7 @@ interface AdminAuthGateProps {
 }
 
 export function AdminAuthGate({ children }: AdminAuthGateProps) {
-  const { status } = useAdminAuth();
+  const { status, signOut } = useAdminAuth();
 
   if (status === "loading") {
     return (
@@ -20,7 +20,7 @@ export function AdminAuthGate({ children }: AdminAuthGateProps) {
   if (status === "error") {
     return (
       <main role="alert">
-        <p>Unable to restore the admin session. Please try again later.</p>
+        <p>Unable to verify administrator access. Please try again later.</p>
       </main>
     );
   }
@@ -29,5 +29,25 @@ export function AdminAuthGate({ children }: AdminAuthGateProps) {
     return <AdminLoginPage />;
   }
 
-  return <>{children}</>;
+  if (status === "forbidden") {
+    return (
+      <main role="alert" className="admin-auth-forbidden">
+        <h1>Access denied</h1>
+        <p>Your account is not authorized to access the admin panel.</p>
+        <button type="button" onClick={() => void signOut()}>
+          Sign out
+        </button>
+      </main>
+    );
+  }
+
+  if (status === "authenticated") {
+    return <>{children}</>;
+  }
+
+  return (
+    <main role="alert">
+      <p>Administrator access is unavailable.</p>
+    </main>
+  );
 }

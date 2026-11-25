@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useHashRoute } from "./app/routing/useHashRoute";
 import { useLanguage } from "./app/providers/LanguageProvider";
 import type { AppDependencies } from "./app/bootstrap/createAppDependencies";
@@ -14,7 +14,7 @@ export default function App({ dependencies }: { dependencies: AppDependencies })
   const route = useHashRoute();
 
   return route === "#/admin" ? (
-    <AdminAuthProvider repository={dependencies.adminAuthRepository}><AdminAuthGate><AdminApp /></AdminAuthGate></AdminAuthProvider>
+    <AdminAuthProvider repository={dependencies.adminAuthRepository} authorizationRepository={dependencies.adminAuthorizationRepository}><AdminAuthGate><AdminApp /></AdminAuthGate></AdminAuthProvider>
   ) : (
     <PublicRoute
       route={route}
@@ -88,3 +88,4 @@ function PublicRoute({
 
   return <PublicApp route={route} content={content} />;
 }
+

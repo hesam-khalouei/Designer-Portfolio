@@ -10,11 +10,18 @@
 } from "react";
 import type { AdminSession } from "../../domain/auth/AdminSession";
 import type { AdminAuthRepository } from "../../application/repositories/AdminAuthRepository";
+import type { AdminAuthorizationRepository } from "../../application/repositories/AdminAuthorizationRepository";
+import { CheckAdminAccess } from "../../application/use-cases/CheckAdminAccess";
 import { GetAdminSession } from "../../application/use-cases/GetAdminSession";
 import { SignInAdmin } from "../../application/use-cases/SignInAdmin";
 import { SignOutAdmin } from "../../application/use-cases/SignOutAdmin";
 
-export type AdminAuthStatus = "loading" | "authenticated" | "unauthenticated" | "error";
+export type AdminAuthStatus =
+  | "loading"
+  | "authenticated"
+  | "unauthenticated"
+  | "forbidden"
+  | "error";
 
 interface AdminAuthContextValue {
   status: AdminAuthStatus;
@@ -26,30 +33,60 @@ interface AdminAuthContextValue {
 
 interface AdminAuthProviderProps {
   repository: AdminAuthRepository;
+  authorizationRepository: AdminAuthorizationRepository;
   children: ReactNode;
 }
 
 const AdminAuthContext = createContext<AdminAuthContextValue | null>(null);
 
-export function AdminAuthProvider({ repository, children }: AdminAuthProviderProps) {
+export function AdminAuthProvider({
+  repository,
+  authorizationRepository,
+  children,
+}: AdminAuthProviderProps) {
   const [session, setSession] = useState<AdminSession | null>(null);
   const [status, setStatus] = useState<AdminAuthStatus>("loading");
   const [error, setError] = useState<Error | null>(null);
   const authEventReceived = useRef(false);
+
+  const checkAccess = useCallback(async (nextSession: AdminSession | null) => {
+    if (!nextSession) return false;
+    return new CheckAdminAccess(authorizationRepository).execute();
+  }, [authorizationRepository]);
 
   useEffect(() => {
     let active = true;
     let unsubscribe = () => {};
     authEventReceived.current = false;
 
-    try {
-      unsubscribe = repository.subscribeToAuthChanges((nextSession) => {
-        authEventReceived.current = true;
+    const applySession = async (nextSession: AdminSession | null) => {
+      try {
+        const allowed = await checkAccess(nextSession);
         if (!active) return;
 
         setSession(nextSession);
-        setStatus(nextSession ? "authenticated" : "unauthenticated");
+        setStatus(
+          nextSession
+            ? allowed ? "authenticated" : "forbidden"
+            : "unauthenticated",
+        );
         setError(null);
+      } catch (cause) {
+        if (!active) return;
+        setSession(null);
+        setStatus("error");
+        setError(
+          cause instanceof Error
+            ? cause
+            : new Error("Authorization check failed"),
+        );
+      }
+    };
+
+    try {
+      unsubscribe = repository.subscribeToAuthChanges((nextSession) => {
+        authEventReceived.current = true;
+        if (active) void applySession(nextSession);
       });
     } catch (cause) {
       setSession(null);
@@ -63,15 +100,12 @@ export function AdminAuthProvider({ repository, children }: AdminAuthProviderPro
 
     void new GetAdminSession(repository)
       .execute()
-      .then((restoredSession) => {
+      .then(async (restoredSession) => {
         if (!active || authEventReceived.current) return;
-
-        setSession(restoredSession);
-        setStatus(restoredSession ? "authenticated" : "unauthenticated");
+        await applySession(restoredSession);
       })
       .catch((cause: unknown) => {
         if (!active || authEventReceived.current) return;
-
         setSession(null);
         setStatus("error");
         setError(cause instanceof Error ? cause : new Error("Session restoration failed"));
@@ -81,23 +115,39 @@ export function AdminAuthProvider({ repository, children }: AdminAuthProviderPro
       active = false;
       unsubscribe();
     };
-  }, [repository]);
+  }, [repository, checkAccess]);
 
   const signIn = useCallback(
     async (email: string, password: string) => {
+      authEventReceived.current = true;
       setError(null);
+      setStatus("loading");
+
+      let nextSession: AdminSession;
 
       try {
-        const nextSession = await new SignInAdmin(repository).execute(email, password);
-        setSession(nextSession);
-        setStatus("authenticated");
+        nextSession = await new SignInAdmin(repository).execute(email, password);
       } catch (cause) {
         const authError = cause instanceof Error ? cause : new Error("Sign-in failed");
+        setSession(null);
+        setStatus("unauthenticated");
         setError(authError);
         throw authError;
       }
+
+      try {
+        const allowed = await checkAccess(nextSession);
+        setSession(nextSession);
+        setStatus(allowed ? "authenticated" : "forbidden");
+      } catch (cause) {
+        const authorizationError = cause instanceof Error ? cause : new Error("Authorization check failed");
+        setSession(null);
+        setStatus("error");
+        setError(authorizationError);
+        throw authorizationError;
+      }
     },
-    [repository],
+    [repository, checkAccess],
   );
 
   const signOut = useCallback(async () => {
@@ -119,7 +169,11 @@ export function AdminAuthProvider({ repository, children }: AdminAuthProviderPro
     [status, session, error, signIn, signOut],
   );
 
-  return <AdminAuthContext.Provider value={value}>{children}</AdminAuthContext.Provider>;
+  return (
+    <AdminAuthContext.Provider value={value}>
+      {children}
+    </AdminAuthContext.Provider>
+  );
 }
 
 export function useAdminAuth(): AdminAuthContextValue {
@@ -131,3 +185,5 @@ export function useAdminAuth(): AdminAuthContextValue {
 
   return context;
 }
+
+

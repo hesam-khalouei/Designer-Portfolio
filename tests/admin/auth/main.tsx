@@ -1,5 +1,6 @@
 ﻿import { createRoot } from "react-dom/client";
 import type { AdminAuthRepository } from "../../../src/application/repositories/AdminAuthRepository";
+import type { AdminAuthorizationRepository } from "../../../src/application/repositories/AdminAuthorizationRepository";
 import type { AdminSession } from "../../../src/domain/auth/AdminSession";
 import { AdminAuthProvider, useAdminAuth } from "../../../src/admin/auth/AdminAuthProvider";
 import { AdminAuthGate } from "../../../src/admin/auth/AdminAuthGate";
@@ -29,7 +30,12 @@ const repository: AdminAuthRepository = {
     if (scenario === "loading") {
       await new Promise((resolve) => setTimeout(resolve, 700));
     }
-    return scenario === "authenticated" || scenario === "loading" ? session : null;
+    return scenario === "authenticated" ||
+      scenario === "loading" ||
+      scenario === "forbidden" ||
+      scenario === "authorization-error"
+      ? session
+      : null;
   },
   async signOut() {
     authListener?.(null);
@@ -40,6 +46,15 @@ const repository: AdminAuthRepository = {
     return () => {
       authListener = null;
     };
+  },
+};
+
+const authorizationRepository: AdminAuthorizationRepository = {
+  async isActiveAdmin() {
+    if (scenario === "authorization-error") {
+      throw new Error("Authorization verification failed");
+    }
+    return scenario !== "forbidden";
   },
 };
 
@@ -69,7 +84,10 @@ function AuthFixture() {
 }
 
 createRoot(document.getElementById("root")!).render(
-  <AdminAuthProvider repository={repository}>
+  <AdminAuthProvider
+    repository={repository}
+    authorizationRepository={authorizationRepository}
+  >
     <AuthFixture />
   </AdminAuthProvider>,
 );
