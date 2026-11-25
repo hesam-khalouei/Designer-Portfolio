@@ -181,7 +181,7 @@ Detailed report: `docs/phases/phase-3-8-verification.md`
 - [ ] Live Supabase migrations - NOT RUN.
 - [ ] Live database connectivity and RLS/security verification - NOT RUN.
 - [ ] Authentication provisioning and login/MFA flows - NOT COMPLETED.
-- [x] Explicit Supabase Repository bootstrap selection implemented; Static remains the default source. Runtime source-selection test not run.
+- [x] Explicit Supabase Repository bootstrap selection implemented; Static remains the default source. Local bootstrap source-selection test: 4 scenarios PASS. Live Supabase connectivity and security verification remain pending.
 
 Detailed report: `docs/phases/phase-4-backend-foundation.md`
 

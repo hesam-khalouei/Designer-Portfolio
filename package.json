@@ -11,7 +11,8 @@
     "test:ui": "node scripts/verify-portfolio.mjs",
     "test:admin-design-system": "node scripts/test-admin-design-system.mjs",
     "test:portfolio-content-decoder": "node scripts/test-portfolio-content-decoder.mjs",
-    "test:supabase-portfolio-repository": "node scripts/test-supabase-portfolio-repository.mjs"
+    "test:supabase-portfolio-repository": "node scripts/test-supabase-portfolio-repository.mjs",
+    "test:app-bootstrap": "node scripts/test-app-bootstrap.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.2",

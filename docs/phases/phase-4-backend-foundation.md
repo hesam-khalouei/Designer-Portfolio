@@ -1,4 +1,4 @@
-# Phase 4 - Backend Foundation
+﻿# Phase 4 - Backend Foundation
 
 ## Status
 
@@ -64,6 +64,7 @@ Live Supabase integration and operational security verification remain pending.
 - `src/infrastructure/repositories/supabase-portfolio-repository-errors.ts`
 - `scripts/test-portfolio-content-decoder.mjs`
 - `scripts/test-supabase-portfolio-repository.mjs`
+- `scripts/test-app-bootstrap.mjs`
 - `package.json`
 
 ## Verification evidence
@@ -73,11 +74,25 @@ Live Supabase integration and operational security verification remain pending.
 | TypeScript strict check | PASS |
 | Portfolio Content Decoder | 8 tests PASS |
 | Supabase Portfolio Repository | 7 tests PASS |
+| Application Bootstrap | 4 scenarios PASS |
 | Admin Design System | 9 checks PASS |
 | Public UI regression | PASS |
 | Production build | PASS |
 
 The Public UI regression covered English, Persian, and Arabic at 1440, 1280, 768, and 390 pixel viewports, Admin/Public route isolation, localization and preference persistence, mobile menu and Escape behavior, all 39 localized Case Studies, documented metrics, email behavior, and runtime-error checks.
+
+### Application Bootstrap verification
+
+Added `test:app-bootstrap` to verify application bootstrap source selection through isolated Vite SSR module loading.
+
+- Missing `VITE_PORTFOLIO_CONTENT_SOURCE` selects Static and returns static portfolio content.
+- Explicit `supabase` selects the Supabase Repository.
+- An unconfigured Supabase client produces `SUPABASE_NOT_CONFIGURED`; no Static fallback occurs.
+- Unsupported source values are rejected during bootstrap module evaluation.
+
+Command: `npx --yes pnpm@10.34.3 run test:app-bootstrap` ? 4 scenarios PASS.
+
+The test injects environment values into isolated Vite servers. It does not read or modify `.env.local`, connect to a database, or verify live Supabase behavior. Vite logs the expected invalid-source rejection during the negative test.
 
 ### Development server incident
 

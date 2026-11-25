@@ -70,6 +70,6 @@
 - Phase 3.6: Repository Foundation تکمیل‌شده؛ قرارداد Application، Static Adapter، Use Case و تزریق وابستگی پیاده‌سازی و اعتبارسنجی شدند.
 - Phase 3.7: پیاده‌سازی Admin UI Foundation و اعتبارسنجی‌های اصلی تکمیل شده‌اند؛ محدودیت‌های تست در گزارش Phase 3.7 ثبت شده‌اند.
 - Phase 3.8: Verification تکمیل شده؛ TypeScript، Build، Regression UI، تست مستقل پنج Primitive، Keyboard/Focus، روابط Accessibility، Theme، RTL، Console/Network و خروجی Static Base Path تأیید شده‌اند. انتشار واقعی GitHub Pages و ممیزی جامع WCAG/Screen Reader انجام نشده است.
-- Phase 4: Backend Foundation local implementation and verification completed for migrations, Supabase client, content decoder, Supabase Repository, and explicit Static/Supabase bootstrap selection. Static remains the default source. Live migrations, database connectivity, operational RLS verification, and authentication flows remain pending; see the Phase 4 report.
+- Phase 4: Backend Foundation local implementation and verification completed for migrations, Supabase client, content decoder, Supabase Repository, and explicit Static/Supabase bootstrap selection, including four passing local bootstrap scenarios. Static remains the default source. Live migrations, database connectivity, operational RLS verification, and authentication flows remain pending; see the Phase 4 report.
 
 > این فهرست وضعیت مستندات و شواهد موجود را منعکس می‌کند. تأیید طراحی به معنی تکمیل پیاده‌سازی نیست. موارد نیازمند بررسی یا اعتبارسنجی باید صریحاً مشخص شوند.
