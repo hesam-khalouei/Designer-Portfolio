@@ -1,4 +1,4 @@
-# Portfolio Panel — Documentation Index
+﻿# Portfolio Panel — Documentation Index
 
 این پوشه، مرجع مستندات معماری، تصمیم‌ها، ممیزی، سیاست‌های عملیاتی و اجرای پروژه Portfolio Panel است.
 
@@ -53,6 +53,7 @@
 | `phases/phase-3-7-admin-ui-foundation.md` | گزارش پیاده‌سازی Admin UI Foundation و نتایج اعتبارسنجی Phase 3.7 |
 | `phases/phase-3-8-verification.md` | گزارش Verification و نتایج تست‌های Phase 3.8 |
 | `phases/phase-4-backend-foundation.md` | Phase 4 implementation, verification, migration readiness, security review, and operational limitations report |
+| `phases/phase-5-core-cms-project-persistence.md` | Phase 5.1 Project CMS persistence contracts, Supabase adapter, migration and verification report |
 
 ## وضعیت پروژه
 
@@ -91,3 +92,19 @@
 **Current Phase 4 status:** Authentication contracts and Supabase adapter, React session lifecycle, Email/Password login UI, Admin route gate, and active-admin authorization integration are implemented and locally verified.
 
 **Remaining work:** Live Supabase connectivity, migration execution, database/RLS runtime verification, trusted Admin provisioning, TOTP enrollment and verification, authoritative AAL2 enforcement, account recovery, and emergency administrator replacement. No live Supabase operation or provisioning was performed in Batch 4.10.
+
+
+**Batch 5.1 update — 2026-11-28:** Project CMS persistence foundation is implemented and locally verified.
+
+- Project Draft Domain model, Application repository contract, typed errors, and List/Get/Create/Save use cases implemented.
+- Shared (`und`) and locale-specific (`en`, `fa`, `ar`) draft revisions are independent.
+- Supabase Project Draft Repository implemented with chunked queries and pagination.
+- Atomic project creation and revision-aware draft save RPC migration authored.
+- Project Draft use-case tests: 5 PASS.
+- Supabase Project Draft Repository tests: 7 PASS.
+- Project CMS migration static verification: 12 groups PASS.
+- TypeScript check and `git diff --check` completed without reported errors.
+
+**Current Phase 5 status:** Persistence foundation only. Project CMS Admin UI has not started. No live Supabase connection, SQL migration execution, database integration test, or runtime RLS verification was performed. Publish, Rollback, Archive, Page Builder, Block Editor, Dynamic Section Manager, and full Localization remain outside Batch 5.1.
+
+**Next batch:** Dynamic Admin Project list, project creation and editing UI, locale-specific draft editing, and sort-order management. Existing project content must be preserved; project count and names must not be hardcoded.

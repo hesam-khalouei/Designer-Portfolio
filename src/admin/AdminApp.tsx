@@ -1,15 +1,19 @@
-import { useLanguage } from "../app/providers/LanguageProvider";
-import { useTheme } from "../app/providers/ThemeProvider";
-import { text, type Lang } from "../domain/localization/LocalizedText";
-import { ui } from "../locales";
-import "./styles/admin-tokens.css";
-import "./styles/admin.css";
+﻿import type { AppDependencies } from '../app/bootstrap/createAppDependencies';
+import { useLanguage } from '../app/providers/LanguageProvider';
+import { useTheme } from '../app/providers/ThemeProvider';
+import { text, type Lang } from '../domain/localization/LocalizedText';
+import { ui } from '../locales';
+import { AdminProjectList } from './content/AdminProjectList';
+import { AdminLegacyProjectImporter } from './content/AdminLegacyProjectImporter';
+import './styles/admin-tokens.css';
+import './styles/admin.css';
 
-export default function AdminApp() {
+export default function AdminApp({
+  projectDrafts,
+}: Pick<AppDependencies, 'projectDrafts'>) {
   const { lang, setLang } = useLanguage();
   const { theme, setTheme } = useTheme();
-
-  const nextTheme = theme === "light" ? "dark" : "light";
+  const nextTheme = theme === 'light' ? 'dark' : 'light';
 
   return (
     <div className="admin-app">
@@ -55,13 +59,22 @@ export default function AdminApp() {
           </header>
 
           <main className="admin-content">
-            <section className="admin-page-heading" aria-labelledby="admin-title">
+            <section
+              className="admin-page-heading"
+              aria-labelledby="admin-title"
+            >
               <h1 id="admin-title">{text(ui.adminTitle, lang)}</h1>
               <p>{text(ui.adminDescription, lang)}</p>
             </section>
 
+            <AdminLegacyProjectImporter
+              projectDrafts={projectDrafts}
+              locale={lang}
+            />
 
-            <p>
+            <AdminProjectList projectDrafts={projectDrafts} locale={lang} />
+
+            <p className="admin-back-link">
               <a className="admin-control" href="#/">
                 {text(ui.adminBack, lang)}
               </a>

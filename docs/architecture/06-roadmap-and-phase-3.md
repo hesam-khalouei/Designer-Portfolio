@@ -283,3 +283,32 @@ criteria.
 **Current Phase 4 implementation status:** Authentication contracts and Supabase adapter, React session lifecycle, Email/Password login UI, Admin route gate, and active-admin authorization integration are implemented and locally verified.
 
 **Remaining operational and security work:** Live Supabase connectivity, migration execution, database/RLS runtime verification, trusted Admin provisioning, TOTP enrollment and verification, authoritative AAL2 enforcement, account recovery, and emergency administrator replacement. No live database operation or provisioning was performed in Batch 4.10.
+
+### Phase 5 — Core CMS execution status
+
+**Batch 5.1 — Project CMS Persistence Foundation — 2026-11-28**
+
+**Status:** Local implementation and static verification completed; Admin UI not started.
+
+- [x] Provider-neutral Project Draft Domain model created.
+- [x] Application repository contract and typed persistence errors created.
+- [x] List, Get, Create and Save Project Draft use cases implemented.
+- [x] Shared (`und`) and locale-specific (`en`, `fa`, `ar`) draft revisions modeled independently.
+- [x] Stable project identity and independent sort order supported.
+- [x] Supabase Project Draft Repository implemented.
+- [x] Chunked entity/revision queries and pagination implemented for scalable project listing.
+- [x] Versioned migration defines atomic project creation and revision-aware draft save RPCs.
+- [x] Direct authenticated write privileges used by the RPC workflow revoked; RPC execution restricted to authenticated callers and active-admin checks enforced.
+- [x] Project Draft use-case tests: 5 PASS.
+- [x] Supabase Project Draft Repository tests: 7 PASS.
+- [x] Project CMS migration static verification: 12 groups PASS.
+- [x] TypeScript check completed without reported errors.
+- [x] `git diff --check` completed without reported errors.
+
+**Scope boundaries:** No Project CMS UI, category manager, Page Builder, Block Editor, Dynamic Section Manager, full Localization workflow, Publish, Rollback or Archive operation is included in Batch 5.1.
+
+**Operational limitations:** Migration was statically inspected only. No live Supabase connection, SQL execution, database integration test, runtime RLS verification, MFA or AAL2 enforcement was performed.
+
+**Next execution batch:** Build the dynamic Admin Project list, project creation and editing workflows, locale-specific draft editing and sort-order management on top of the implemented contracts. Preserve existing project content and do not hardcode the number or names of projects.
+
+Detailed report: `docs/phases/phase-5-core-cms-project-persistence.md`

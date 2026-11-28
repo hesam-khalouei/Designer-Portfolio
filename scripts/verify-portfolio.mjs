@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";
+﻿import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { chromium } from "playwright";
 
@@ -81,24 +81,26 @@ try {
       await checkLayout(`Case study ${url} ${lang}`);
     }
   }
-  for (const [lang, title, direction] of [
-    ["en", "Admin Panel", "ltr"],
-    ["fa", "\u067E\u0646\u0644 \u0645\u062F\u06CC\u0631\u06CC\u062A", "rtl"],
-    ["ar", "\u0644\u0648\u062D\u0629 \u0627\u0644\u0625\u062F\u0627\u0631\u0629", "rtl"],
+  for (const [lang, direction] of [
+    ["en", "ltr"],
+    ["fa", "rtl"],
+    ["ar", "rtl"],
   ]) {
     await page.evaluate(([lang]) => localStorage.setItem("ahk-language", lang), [lang]);
     await page.evaluate(() => localStorage.setItem("ahk-theme", "dark"));
-    await page.reload({ waitUntil: "networkidle" });
     await page.goto(`${base}/#/admin`, { waitUntil: "networkidle" });
-    assert.equal((await page.locator("#admin-title").textContent()).trim(), title);
+    await page.getByRole("heading", { name: "Admin Sign In" }).waitFor();
+    assert.equal(await page.locator("#admin-title").count(), 0);
+    assert.equal(await page.locator(".admin-login").count(), 1);
     assert.equal(await page.locator("html").getAttribute("lang"), lang);
     assert.equal(await page.locator("html").getAttribute("dir"), direction);
     assert.equal(await page.locator("html").getAttribute("data-theme"), "dark");
     assert.equal(await page.locator(".hero-intro").count(), 0);
     assert.equal(await page.locator("header.header").count(), 0);
-    assert.equal(await page.locator('a[href="#/"]').count(), 1);
+    assert.equal(await page.locator('a[href="#/"]').count(), 0);
+    console.log(`PASS protected admin route shows Login for unauthenticated ${lang} visitor`);
   }
-  await page.locator('a[href="#/"]').click();
+  await page.goto(`${base}/#/`, { waitUntil: "networkidle" });
   await page.waitForSelector(".hero-intro");
   assert.equal(await page.locator("html").getAttribute("lang"), "ar");
   assert.equal(await page.locator("html").getAttribute("data-theme"), "dark");
@@ -106,7 +108,7 @@ try {
   await page.waitForSelector(".hero-intro");
   await page.goto(`${base}/#/unknown`, { waitUntil: "networkidle" });
   await page.waitForSelector(".hero-intro");
-  console.log("PASS Admin route isolation, en/fa/ar localization, preference persistence, public return, and fallback routes");
+  console.log("PASS admin route protection, en/fa/ar document localization, preference persistence, public return, and fallback routes");
   await language("en");
   await page.getByRole("button", { name: "Switch to light theme", exact: true }).click();
   await page.goto(`${base}/#/work/postex`);

@@ -17,7 +17,9 @@
     "test:admin-auth-contract": "node scripts/test-admin-auth-contract.mjs",
     "test:supabase-admin-auth-repository": "node scripts/test-supabase-admin-auth-repository.mjs",
     "test:admin-auth-lifecycle": "node scripts/test-admin-auth-lifecycle.mjs",
-    "test:supabase-admin-authorization-repository": "node scripts/test-supabase-admin-authorization-repository.mjs"
+    "test:supabase-admin-authorization-repository": "node scripts/test-supabase-admin-authorization-repository.mjs",
+    "test:project-cms-migration": "node scripts/test-project-cms-migration.mjs",
+    "test:supabase-project-draft-repository": "node scripts/test-supabase-project-draft-repository.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.2",
