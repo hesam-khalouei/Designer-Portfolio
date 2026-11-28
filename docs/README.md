@@ -77,3 +77,17 @@
 **Batch 4.7 update — 2026-11-25:** Authentication Domain/Application contracts and five fake-repository tests are implemented and verified. This is not production Authentication: Supabase Auth integration, login UI, active-admin authorization, provisioning, MFA/AAL2, and route protection remain pending.
 
 **Batch 4.9 update — 2026-11-25:** React Admin Authentication lifecycle, Email/Password login, and fail-closed route gate are implemented and locally verified. Auth lifecycle tests: 10 PASS. TypeScript, formatting, and production build pass. The route gate is UX-only; active-admin authorization, provisioning, live Supabase/RLS verification, MFA, and AAL2 enforcement remain pending.
+
+**Batch 4.10 update — 2026-11-28:** Active-admin authorization and Authentication race protection are implemented and locally verified.
+
+- Admin Authentication lifecycle: 14 PASS.
+- Supabase Admin Authorization repository: 7 PASS.
+- Supabase Admin Authentication adapter: 12 PASS.
+- TypeScript strict validation: PASS.
+- Oxfmt validation: PASS.
+- Production build: PASS.
+- `git diff --check`: PASS.
+
+**Current Phase 4 status:** Authentication contracts and Supabase adapter, React session lifecycle, Email/Password login UI, Admin route gate, and active-admin authorization integration are implemented and locally verified.
+
+**Remaining work:** Live Supabase connectivity, migration execution, database/RLS runtime verification, trusted Admin provisioning, TOTP enrollment and verification, authoritative AAL2 enforcement, account recovery, and emergency administrator replacement. No live Supabase operation or provisioning was performed in Batch 4.10.

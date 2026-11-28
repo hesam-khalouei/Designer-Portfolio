@@ -47,51 +47,54 @@ export function AdminAuthProvider({
   const [session, setSession] = useState<AdminSession | null>(null);
   const [status, setStatus] = useState<AdminAuthStatus>("loading");
   const [error, setError] = useState<Error | null>(null);
-  const authEventReceived = useRef(false);
+  const requestGeneration = useRef(0);
 
-  const checkAccess = useCallback(async (nextSession: AdminSession | null) => {
-    if (!nextSession) return false;
-    return new CheckAdminAccess(authorizationRepository).execute();
-  }, [authorizationRepository]);
+  const checkAccess = useCallback(
+    async (nextSession: AdminSession | null) => {
+      if (!nextSession) return false;
+      return new CheckAdminAccess(authorizationRepository).execute();
+    },
+    [authorizationRepository],
+  );
 
   useEffect(() => {
     let active = true;
     let unsubscribe = () => {};
-    authEventReceived.current = false;
 
-    const applySession = async (nextSession: AdminSession | null) => {
+    const restoreRequestId = ++requestGeneration.current;
+
+    const applySession = async (nextSession: AdminSession | null, requestId: number) => {
       try {
         const allowed = await checkAccess(nextSession);
-        if (!active) return;
+
+        if (!active || requestGeneration.current !== requestId) return;
 
         setSession(nextSession);
-        setStatus(
-          nextSession
-            ? allowed ? "authenticated" : "forbidden"
-            : "unauthenticated",
-        );
+        setStatus(nextSession ? (allowed ? "authenticated" : "forbidden") : "unauthenticated");
         setError(null);
       } catch (cause) {
-        if (!active) return;
+        if (!active || requestGeneration.current !== requestId) return;
+
         setSession(null);
         setStatus("error");
-        setError(
-          cause instanceof Error
-            ? cause
-            : new Error("Authorization check failed"),
-        );
+        setError(cause instanceof Error ? cause : new Error("Authorization check failed"));
       }
     };
 
     try {
       unsubscribe = repository.subscribeToAuthChanges((nextSession) => {
-        authEventReceived.current = true;
-        if (active) void applySession(nextSession);
+        if (!active) return;
+
+        const requestId = ++requestGeneration.current;
+        void applySession(nextSession, requestId);
       });
     } catch (cause) {
-      setSession(null);
-      setStatus("error");
-      setError(cause instanceof Error ? cause : new Error("Auth subscription failed"));
+      if (requestGeneration.current === restoreRequestId) {
+        ++requestGeneration.current;
+        setSession(null);
+        setStatus("error");
+        setError(cause instanceof Error ? cause : new Error("Auth subscription failed"));
+      }
 
       return () => {
         active = false;
@@ -101,11 +104,12 @@ export function AdminAuthProvider({
     void new GetAdminSession(repository)
       .execute()
       .then(async (restoredSession) => {
-        if (!active || authEventReceived.current) return;
-        await applySession(restoredSession);
+        if (!active || requestGeneration.current !== restoreRequestId) return;
+        await applySession(restoredSession, restoreRequestId);
       })
       .catch((cause: unknown) => {
-        if (!active || authEventReceived.current) return;
+        if (!active || requestGeneration.current !== restoreRequestId) return;
+
         setSession(null);
         setStatus("error");
         setError(cause instanceof Error ? cause : new Error("Session restoration failed"));
@@ -113,15 +117,15 @@ export function AdminAuthProvider({
 
     return () => {
       active = false;
+      ++requestGeneration.current;
       unsubscribe();
     };
   }, [repository, checkAccess]);
 
   const signIn = useCallback(
     async (email: string, password: string) => {
-      authEventReceived.current = true;
+      const requestId = ++requestGeneration.current;
       setError(null);
-      setStatus("loading");
 
       let nextSession: AdminSession;
 
@@ -129,18 +133,32 @@ export function AdminAuthProvider({
         nextSession = await new SignInAdmin(repository).execute(email, password);
       } catch (cause) {
         const authError = cause instanceof Error ? cause : new Error("Sign-in failed");
-        setSession(null);
-        setStatus("unauthenticated");
-        setError(authError);
+
+        if (requestGeneration.current === requestId) {
+          setSession(null);
+          setStatus("unauthenticated");
+          setError(authError);
+        }
+
         throw authError;
       }
 
+      if (requestGeneration.current !== requestId) return;
+
       try {
         const allowed = await checkAccess(nextSession);
+
+        if (requestGeneration.current !== requestId) return;
+
         setSession(nextSession);
         setStatus(allowed ? "authenticated" : "forbidden");
+        setError(null);
       } catch (cause) {
-        const authorizationError = cause instanceof Error ? cause : new Error("Authorization check failed");
+        if (requestGeneration.current !== requestId) return;
+
+        const authorizationError =
+          cause instanceof Error ? cause : new Error("Authorization check failed");
+
         setSession(null);
         setStatus("error");
         setError(authorizationError);
@@ -151,15 +169,24 @@ export function AdminAuthProvider({
   );
 
   const signOut = useCallback(async () => {
+    const requestId = ++requestGeneration.current;
     setError(null);
 
     try {
       await new SignOutAdmin(repository).execute();
+
+      if (requestGeneration.current !== requestId) return;
+
       setSession(null);
       setStatus("unauthenticated");
+      setError(null);
     } catch (cause) {
       const authError = cause instanceof Error ? cause : new Error("Sign-out failed");
-      setError(authError);
+
+      if (requestGeneration.current === requestId) {
+        setError(authError);
+      }
+
       throw authError;
     }
   }, [repository]);
@@ -169,11 +196,7 @@ export function AdminAuthProvider({
     [status, session, error, signIn, signOut],
   );
 
-  return (
-    <AdminAuthContext.Provider value={value}>
-      {children}
-    </AdminAuthContext.Provider>
-  );
+  return <AdminAuthContext.Provider value={value}>{children}</AdminAuthContext.Provider>;
 }
 
 export function useAdminAuth(): AdminAuthContextValue {
@@ -185,5 +208,3 @@ export function useAdminAuth(): AdminAuthContextValue {
 
   return context;
 }
-
-

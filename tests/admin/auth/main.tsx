@@ -17,6 +17,7 @@ const session: AdminSession = {
 };
 
 let authListener: ((value: AdminSession | null) => void) | null = null;
+let authorizationResolvers: Array<(value: boolean) => void> = [];
 
 const repository: AdminAuthRepository = {
   async signInWithPassword(email, password) {
@@ -51,6 +52,9 @@ const repository: AdminAuthRepository = {
 
 const authorizationRepository: AdminAuthorizationRepository = {
   async isActiveAdmin() {
+    if (scenario === "authorization-race") {
+      return new Promise<boolean>((resolve) => authorizationResolvers.push(resolve));
+    }
     if (scenario === "authorization-error") {
       throw new Error("Authorization verification failed");
     }
@@ -70,6 +74,13 @@ function AuthFixture() {
       <button type="button" data-testid="emit-null" onClick={() => authListener?.(null)}>
         Emit signed out
       </button>
+      <button
+        type="button"
+        data-testid="resolve-authorization"
+        onClick={() => authorizationResolvers.shift()?.(true)}
+      >
+        Resolve authorization
+      </button>
       <AdminAuthGate>
         <section data-testid="protected-admin">
           <h1>Protected Admin Content</h1>
@@ -84,10 +95,7 @@ function AuthFixture() {
 }
 
 createRoot(document.getElementById("root")!).render(
-  <AdminAuthProvider
-    repository={repository}
-    authorizationRepository={authorizationRepository}
-  >
+  <AdminAuthProvider repository={repository} authorizationRepository={authorizationRepository}>
     <AuthFixture />
   </AdminAuthProvider>,
 );

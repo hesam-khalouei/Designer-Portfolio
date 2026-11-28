@@ -267,3 +267,19 @@ criteria.
 **Batch 4.8 update — 2026-11-25:** Supabase Auth adapter and fake-client tests are complete. No live Supabase Auth or database connection was used. Authentication remains distinct from active-admin authorization.
 
 **Batch 4.9 update — 2026-11-25:** React Authentication lifecycle, Email/Password login page, and fail-closed Admin route gate are implemented. The lifecycle suite passes 10 scenarios; TypeScript, formatting, and production build pass. The gate is UX-only. Active-admin authorization, provisioning, live Supabase/RLS verification, MFA, and AAL2 enforcement remain pending.
+
+**Batch 4.10 update — 2026-11-28:** Active-admin authorization repository and client-side Authentication race protection are implemented and locally verified.
+
+- [x] Active-admin authorization adapter integrated with the Application contract.
+- [x] Fail-closed handling for missing, inactive, malformed, and RLS-hidden admin profiles.
+- [x] Authorization error classification for database and network/provider failures.
+- [x] Request-generation protection against stale asynchronous Authentication and authorization responses.
+- [x] Regression test confirms a delayed authorization response cannot restore access after sign-out.
+- [x] Admin Authentication lifecycle: 14 PASS.
+- [x] Active-admin authorization repository: 7 PASS.
+- [x] Supabase Authentication adapter: 12 PASS.
+- [x] TypeScript, Oxfmt, production build, and `git diff --check` passed.
+
+**Current Phase 4 implementation status:** Authentication contracts and Supabase adapter, React session lifecycle, Email/Password login UI, Admin route gate, and active-admin authorization integration are implemented and locally verified.
+
+**Remaining operational and security work:** Live Supabase connectivity, migration execution, database/RLS runtime verification, trusted Admin provisioning, TOTP enrollment and verification, authoritative AAL2 enforcement, account recovery, and emergency administrator replacement. No live database operation or provisioning was performed in Batch 4.10.

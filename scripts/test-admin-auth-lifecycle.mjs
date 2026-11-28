@@ -42,8 +42,15 @@ try {
   assert.equal(await page.getByTestId("protected-admin").count(), 0);
   console.log("PASS: invalid credentials do not grant access");
 
+  await page.waitForFunction(() => {
+    const button = Array.from(document.querySelectorAll("button")).find(
+      (item) => item.textContent?.trim() === "Sign in",
+    );
+    return Boolean(button && !button.disabled);
+  });
   await page.getByLabel("Password").fill("correct-password");
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await page.waitForTimeout(500);
   await page.getByTestId("protected-admin").waitFor();
   assert.equal(await page.getByTestId("identity").textContent(), "admin@example.test");
   assert.equal(await page.getByTestId("auth-status").textContent(), "authenticated");
@@ -55,6 +62,7 @@ try {
   console.log("PASS: sign-out removes protected access");
 
   await openScenario("authenticated");
+  await page.waitForTimeout(500);
   await page.getByTestId("protected-admin").waitFor();
   assert.equal(await page.getByTestId("identity").textContent(), "admin@example.test");
   console.log("PASS: existing active-admin session is restored");
@@ -76,8 +84,14 @@ try {
   await openScenario("unauthenticated");
   await page.getByRole("heading", { name: "Admin Sign In" }).waitFor();
   await page.getByLabel("Email").fill("admin@example.test");
+  await page.waitForFunction(() => {
+    const button = Array.from(document.querySelectorAll("button")).find(
+      (item) => item.textContent?.trim() === "Sign in",
+    );
+    return Boolean(button && !button.disabled);
+  });
   await page.getByLabel("Password").fill("correct-password");
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await page.getByRole("heading", { name: "Protected Admin Content" }).waitFor();
   console.log("PASS: active admin can sign in after a fresh authentication");
 
@@ -106,6 +120,16 @@ try {
   await page.getByRole("heading", { name: "Admin Sign In" }).waitFor();
   console.log("PASS: auth change events update protected access");
 
+  await openScenario("authorization-race");
+  await page.getByRole("heading", { name: "Admin Sign In" }).waitFor();
+  await page.getByTestId("emit-session").click();
+  await page.getByTestId("emit-null").click();
+  await page.getByRole("heading", { name: "Admin Sign In" }).waitFor();
+  await page.getByTestId("resolve-authorization").click();
+  await page.waitForTimeout(100);
+  assert.equal(await page.getByTestId("auth-status").textContent(), "unauthenticated");
+  assert.equal(await page.getByTestId("protected-admin").count(), 0);
+  console.log("PASS: stale authorization response cannot restore access after sign-out");
   assert.deepEqual(errors, [], "Browser runtime errors detected");
   console.log("PASS: no browser runtime errors");
 } finally {

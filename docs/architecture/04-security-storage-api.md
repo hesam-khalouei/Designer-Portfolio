@@ -236,3 +236,18 @@ The React Admin Authentication lifecycle and Email/Password login flow are imple
 - `AdminAuthGate` prevents Admin UI rendering until a session is restored and authenticated.
 
 The gate is a client-side UX control, not an authorization boundary. Authentication does not establish active-admin authorization. Backend checks and RLS remain authoritative. Active-admin profile integration, provisioning, live Supabase/RLS verification, MFA enrollment, and AAL2 enforcement remain pending. The current adapter reports AAL1 conservatively.
+
+### Batch 4.10 follow-up — 2026-11-28
+
+Active-admin authorization and client-side Authentication race protection are now implemented and locally verified.
+
+- `SupabaseAdminAuthorizationRepository` checks the authenticated user's active admin profile through the RLS-protected `admin_profiles` table.
+- Missing, inactive, RLS-hidden, or malformed profile data never grants authorization.
+- Database authorization failures map to `ACCESS_DENIED`; network/provider failures map to `AUTH_PROVIDER_UNAVAILABLE`.
+- `AdminAuthProvider` uses a monotonic request-generation guard to prevent stale asynchronous session restoration, authorization, sign-in, or sign-out results from overwriting newer authentication state.
+- A regression test reproduces a delayed authorization response after sign-out and verifies that protected access is not restored.
+- The route gate and request-generation guard remain client-side UX/state protections only. Database RLS and backend authorization remain authoritative.
+
+Verification: 14 Admin Authentication lifecycle scenarios, 7 active-admin authorization repository scenarios, and 12 Supabase Authentication adapter scenarios passed. TypeScript, formatting, production build, and `git diff --check` also passed.
+
+No live Supabase connection, migration execution, provisioning, or RLS runtime verification was performed. TOTP enrollment/verification and authoritative AAL2 enforcement remain pending. Account recovery and emergency administrator replacement procedures also remain pending.

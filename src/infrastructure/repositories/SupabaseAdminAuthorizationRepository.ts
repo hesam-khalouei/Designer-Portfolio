@@ -2,6 +2,33 @@
 import type { AdminAuthorizationRepository } from "../../application/repositories/AdminAuthorizationRepository";
 import { AdminAuthError } from "../../application/errors/AdminAuthError";
 
+function mapAuthorizationError(cause: unknown): AdminAuthError {
+  if (cause instanceof AdminAuthError) return cause;
+
+  const error = cause as { name?: string; code?: string };
+  const name = error?.name ?? "";
+  const code = error?.code ?? "";
+
+  if (
+    name === "AuthRetryableFetchError" ||
+    name === "TypeError" ||
+    code === "network_error" ||
+    code === "fetch_error"
+  ) {
+    return new AdminAuthError(
+      "AUTH_PROVIDER_UNAVAILABLE",
+      "The authorization provider is unavailable.",
+      cause,
+    );
+  }
+
+  return new AdminAuthError(
+    "ACCESS_DENIED",
+    "Unable to verify active administrator access.",
+    cause,
+  );
+}
+
 export class SupabaseAdminAuthorizationRepository implements AdminAuthorizationRepository {
   constructor(private readonly client: SupabaseClient | null) {}
 
@@ -24,12 +51,7 @@ export class SupabaseAdminAuthorizationRepository implements AdminAuthorizationR
 
       return Boolean(data?.user_id);
     } catch (cause) {
-      if (cause instanceof AdminAuthError) throw cause;
-      throw new AdminAuthError(
-        "ACCESS_DENIED",
-        "Unable to verify active administrator access.",
-        cause,
-      );
+      throw mapAuthorizationError(cause);
     }
   }
 }

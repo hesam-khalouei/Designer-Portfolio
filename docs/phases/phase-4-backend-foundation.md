@@ -559,3 +559,56 @@ Security boundaries and limitations:
 - No commit or push was performed.
 
 **Batch 4.9 conclusion:** React Authentication lifecycle, login flow, and fail-closed Admin route gating are implemented and locally verified. This is not production authorization or MFA/AAL2 completion.
+
+### Batch 4.10 — Active Admin Authorization & Authentication Race Protection — 2026-11-28
+
+#### Implementation
+
+- Implemented and verified `SupabaseAdminAuthorizationRepository` behind the Application `AdminAuthorizationRepository` contract.
+- Active-admin authorization is checked through the authenticated Supabase client and the RLS-protected `admin_profiles` table.
+- Missing or RLS-hidden profiles, malformed profile data, and `PGRST116` do not grant authorization.
+- Database authorization failures map to `ACCESS_DENIED`; network/provider failures map to `AUTH_PROVIDER_UNAVAILABLE`.
+- Added isolated fake-client tests for the authorization repository.
+- Hardened `AdminAuthProvider` with a monotonic request-generation guard:
+  - Older asynchronous authorization responses cannot overwrite newer authentication state.
+  - Sign-in, sign-out, session restoration, and auth-state events are protected against stale asynchronous results.
+  - Superseded operations cannot restore protected Admin UI after a newer sign-out event.
+- Added a Playwright regression scenario reproducing the stale-authorization-response race.
+- Removed temporary debugging output from the lifecycle test fixture and runner.
+
+#### Verification
+
+| Check | Result |
+|---|---|
+| Admin Authentication lifecycle | 14 PASS |
+| Supabase Admin Authorization repository | 7 PASS |
+| Supabase Admin Authentication repository | 12 PASS |
+| TypeScript strict check | PASS |
+| Oxfmt check on 5 changed files | PASS |
+| Production build | PASS |
+| Git diff whitespace check | PASS |
+
+The lifecycle suite specifically verified that a delayed authorization response cannot restore authenticated access after sign-out. No browser runtime errors were reported.
+
+The Node `DEP0205` deprecation warning appeared during test/build execution but did not prevent successful completion.
+
+#### Files added or changed
+
+- `src/admin/auth/AdminAuthProvider.tsx`
+- `src/infrastructure/repositories/SupabaseAdminAuthorizationRepository.ts`
+- `scripts/test-supabase-admin-authorization-repository.mjs`
+- `scripts/test-admin-auth-lifecycle.mjs`
+- `tests/admin/auth/main.tsx`
+- `package.json` — authorization repository test script
+
+#### Security boundaries and limitations
+
+- The React route gate and request-generation guard protect client-side UI state; neither replaces backend authorization.
+- Supabase RLS and database-side authorization remain authoritative.
+- Tests use fake repositories/clients; no live Supabase Auth request, database connection, or RLS runtime verification was performed.
+- No migrations were executed and no Admin account was provisioned.
+- TOTP enrollment/verification and authoritative AAL2 enforcement remain pending.
+- Account provisioning, recovery procedures, and emergency Admin replacement remain pending.
+- No commit or push was performed.
+
+**Batch 4.10 conclusion:** Active-admin authorization adapter integration and client-side stale-request protection are implemented and locally verified. The targeted Authentication and Authorization test suites pass. Production Supabase authorization, live RLS behavior, and MFA/AAL2 security requirements remain unverified or incomplete.
